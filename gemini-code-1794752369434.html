@@ -1,0 +1,1817 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Les Plaisirs de Jenny - Créations Artisanales & Objets Faits Main</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Dancing+Script:wght@700&family=Montserrat:wght@300;400;600&family=Cinzel:wght@600;700&family=Pacifico&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            terracotta: 'var(--color-primary, #D97762)',
+                            rose: 'var(--color-secondary, #FCEFEF)',
+                            accent: 'var(--color-accent, #C5624E)',
+                            gold: '#D4AF37',
+                            dark: 'var(--color-text-main, #2C2625)',
+                            cream: 'var(--color-bg, #FAF7F5)'
+                        }
+                    },
+                    fontFamily: {
+                        serif: ['var(--font-title, Playfair Display)', 'serif'],
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --color-primary: #D97762;
+            --color-secondary: #FCEFEF;
+            --color-accent: #C5624E;
+            --color-bg: #FAF7F5;
+            --color-text-main: #2C2625;
+            --font-title: 'Playfair Display', serif;
+            --card-radius: 1rem;
+            --card-border: 1px solid rgba(217, 119, 98, 0.15);
+            --card-bg: #FFFFFF;
+            --card-text: #2C2625;
+        }
+        body {
+            background-color: var(--color-bg);
+            color: var(--color-text-main);
+        }
+        .dynamic-card {
+            background-color: var(--card-bg);
+            color: var(--card-text);
+            border-radius: var(--card-radius);
+            border: var(--card-border);
+        }
+        .animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .particle {
+            position: fixed;
+            top: -10px;
+            z-index: 50;
+            user-select: none;
+            pointer-events: none;
+            animation: fall linear infinite;
+        }
+        @keyframes fall {
+            0% { transform: translateY(0) rotate(0deg); opacity: 0.9; }
+            100% { transform: translateY(110vh) rotate(360deg); opacity: 0.2; }
+        }
+    </style>
+</head>
+<body class="font-sans flex flex-col min-h-screen transition-colors duration-300">
+
+    <div id="particles-container"></div>
+
+    <!-- BANNIÈRE D'ANNONCE -->
+    <div id="announcement-banner" class="bg-brand-terracotta text-white py-2 px-4 text-center text-sm font-medium flex justify-between items-center transition-colors">
+        <span id="banner-text" class="w-full">✨ Bienvenue chez Les Plaisirs de Jenny — Créations artisanales faites main à Lys-Lez-Lannoy !</span>
+        <button onclick="toggleBanner(false)" class="text-white/80 hover:text-white ml-2"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+
+    <!-- EN-TÊTE / NAVIGATION -->
+    <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-brand-rose shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex justify-between items-center gap-4">
+            <a href="#" onclick="switchTab('home')" class="flex items-center gap-3 shrink-0">
+                <div class="w-10 h-10 rounded-full bg-brand-rose flex items-center justify-center text-brand-terracotta text-xl font-bold font-serif shadow-inner">J</div>
+                <span class="font-serif text-xl sm:text-2xl font-bold tracking-tight text-brand-dark">Les Plaisirs de <span class="text-brand-terracotta">Jenny</span></span>
+            </a>
+            
+            <nav id="main-nav-bar" class="hidden lg:flex items-center gap-4 text-sm font-medium whitespace-nowrap"></nav>
+
+            <!-- RECHERCHE RAPIDE ESPACE CLIENT -->
+            <div class="relative hidden sm:block w-48 md:w-56 shrink-0">
+                <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
+                <input type="text" id="client-quick-search" oninput="handleClientQuickSearch(this.value)" placeholder="Rechercher une création..." class="w-full pl-8 pr-3 py-1.5 bg-gray-100 hover:bg-gray-200/70 focus:bg-white border border-transparent focus:border-brand-terracotta rounded-full text-xs text-gray-800 outline-none transition-all">
+                <div id="client-search-results" class="hidden absolute right-0 mt-2 w-72 bg-white rounded-2xl shadow-xl border border-gray-100 p-2 z-50 max-h-80 overflow-y-auto"></div>
+            </div>
+
+            <div class="flex items-center gap-2 shrink-0">
+                <button onclick="switchTab('admin')" class="relative px-4 py-2 text-xs font-semibold uppercase tracking-wider text-brand-terracotta bg-brand-rose rounded-full hover:bg-brand-terracotta hover:text-white transition-all shadow-sm">
+                    <i class="fa-solid fa-wand-magic-sparkles mr-1"></i> Espace Jenny
+                    <span id="header-notification-badge" class="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-white hidden"></span>
+                </button>
+                <button onclick="toggleMobileMenu()" class="lg:hidden text-2xl text-brand-dark p-2"><i class="fa-solid fa-bars"></i></button>
+            </div>
+        </div>
+        <div id="mobile-menu" class="hidden lg:hidden bg-white border-b px-4 py-3 space-y-3">
+            <div class="relative sm:hidden">
+                <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
+                <input type="text" oninput="handleClientQuickSearch(this.value)" placeholder="Rechercher une création..." class="w-full pl-8 pr-3 py-2 bg-gray-100 rounded-full text-xs text-gray-800 outline-none">
+            </div>
+            <div id="mobile-nav-links" class="flex flex-col space-y-2"></div>
+        </div>
+    </header>
+
+    <!-- ACCUEIL -->
+    <main id="tab-home" class="tab-content flex-grow animate-fade-in">
+        <section class="relative py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-brand-rose/40 to-transparent">
+            <div class="max-w-7xl mx-auto grid md:grid-cols-2 gap-12 items-center">
+                <div class="space-y-6">
+                    <span class="inline-block px-3 py-1 bg-brand-rose text-brand-terracotta text-xs font-bold uppercase tracking-widest rounded-full">Artisanat Français local • Lys-Lez-Lannoy</span>
+                    <h1 id="display-hero-title" class="font-serif text-4xl sm:text-5xl font-bold leading-tight">Des objets faits main créés avec <span class="text-brand-terracotta italic">passion & amour</span>.</h1>
+                    <p id="display-hero-subtitle" class="text-lg opacity-90">Chaque réalisation apporte une touche unique et personnelle à votre quotidien. Décorations, cadeaux originaux et créations sur-mesure faits main.</p>
+                    <div class="flex flex-wrap gap-4 pt-4">
+                        <button onclick="switchTab('contact')" class="px-6 py-3 bg-brand-terracotta text-white rounded-xl font-medium shadow-lg hover:bg-brand-accent transition-all">Demander un Devis Gratuit</button>
+                        <button onclick="switchTab('services')" class="px-6 py-3 dynamic-card border border-gray-200 rounded-xl font-medium hover:opacity-80 transition-all">Découvrir les Services</button>
+                    </div>
+                </div>
+                <div class="relative" id="hero-image-wrapper">
+                    <div class="w-full h-96 rounded-3xl bg-gray-200 overflow-hidden shadow-2xl relative border-4 border-white">
+                        <img id="display-hero-img" src="image_generation_content/16908471540866406968" alt="Créations de Noël faites main" class="w-full h-full object-cover">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Galerie Accueil -->
+        <section class="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-wrap justify-between items-end mb-8 gap-4">
+                <div>
+                    <span class="text-brand-terracotta text-xs font-bold uppercase tracking-widest">Vitrine & Nouveautés</span>
+                    <h2 class="font-serif text-3xl font-bold mt-1">Dernières Créations Phares</h2>
+                </div>
+                <div id="category-filters" class="flex flex-wrap gap-2">
+                    <button onclick="filterGallery('all')" class="px-4 py-2 bg-brand-terracotta text-white text-xs font-bold rounded-xl shadow-sm">Toutes</button>
+                </div>
+            </div>
+            <div id="home-gallery-grid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-8"></div>
+        </section>
+
+        <!-- Services Aperçu -->
+        <section class="py-16 border-t border-brand-rose/50">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <h2 class="font-serif text-3xl font-bold text-center mb-12">Mes Prestations Artisanales</h2>
+                <div id="services-grid-home" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-8"></div>
+            </div>
+        </section>
+    </main>
+
+    <!-- À PROPOS -->
+    <main id="tab-about" class="tab-content hidden flex-grow animate-fade-in py-16">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6">
+            <h1 id="display-about-heading" class="font-serif text-4xl font-bold mb-8 text-center">À Propos de <span class="text-brand-terracotta">Les Plaisirs de Jenny</span></h1>
+            <div class="p-8 dynamic-card shadow-sm space-y-8 leading-relaxed">
+                <div class="w-full h-72 rounded-2xl overflow-hidden shadow-md" id="about-image-wrapper">
+                    <img id="display-about-img" src="image_generation_content/14629723310438538184" alt="Atelier de Jenny" class="w-full h-full object-cover">
+                </div>
+                <div class="space-y-4" id="display-about-text">
+                    <p class="text-lg font-medium">Bienvenue dans mon univers créatif ! Basée à Lys-Lez-Lannoy dans le Nord de la France, je conçois et fabrique des objets faits main d'exception.</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- SERVICES -->
+    <main id="tab-services" class="tab-content hidden flex-grow animate-fade-in py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h1 class="font-serif text-4xl font-bold mb-3">Toutes Mes Prestations</h1>
+            <p class="opacity-85 mb-12 max-w-2xl mx-auto">Découvrez l'éventail complet des créations artisanales proposées par Jenny.</p>
+            <div id="services-grid-full" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-8"></div>
+        </div>
+    </main>
+
+    <!-- VITRINE -->
+    <main id="tab-vitrine" class="tab-content hidden flex-grow animate-fade-in py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h1 class="font-serif text-4xl font-bold mb-4 text-center">Vitrine des Objets & Ventes</h1>
+            <p class="text-center opacity-85 mb-8">Découvrez toutes nos collections disponibles.</p>
+            <div class="flex flex-wrap justify-center gap-2 mb-8" id="vitrine-filters"></div>
+            <div id="vitrine-grid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-8"></div>
+        </div>
+    </main>
+
+    <!-- TARIFS & DEVIS -->
+    <main id="tab-pricing" class="tab-content hidden flex-grow animate-fade-in py-16">
+        <div class="max-w-3xl mx-auto px-4 sm:px-6">
+            <h1 class="font-serif text-4xl font-bold mb-4 text-center">Espace Tarifs & Devis</h1>
+            <div class="p-8 dynamic-card shadow-sm space-y-6">
+                <div id="sim-step-1" class="space-y-4">
+                    <div class="flex justify-between items-center border-b pb-2 mb-4">
+                        <h3 class="font-serif text-xl font-bold text-brand-terracotta">Étape 1/3 : Type de Projet</h3>
+                        <span class="text-xs font-bold opacity-60">1 sur 3</span>
+                    </div>
+                    <label class="block text-sm font-medium mb-1">Sélectionnez le type de projet :</label>
+                    <select id="sim-type" class="w-full p-3 border rounded-xl bg-gray-50 text-gray-800"></select>
+                    <div class="flex justify-end pt-4">
+                        <button type="button" onclick="goToSimStep(2)" class="px-6 py-3 bg-brand-terracotta text-white rounded-xl font-bold text-sm shadow-md">Suivant →</button>
+                    </div>
+                </div>
+
+                <div id="sim-step-2" class="space-y-4 hidden">
+                    <div class="flex justify-between items-center border-b pb-2 mb-4">
+                        <h3 class="font-serif text-xl font-bold text-brand-terracotta">Étape 2/3 : Mode de Livraison</h3>
+                        <span class="text-xs font-bold opacity-60">2 sur 3</span>
+                    </div>
+                    <label class="block text-sm font-medium mb-1">Choisissez comment récupérer votre commande :</label>
+                    <select id="sim-shipping" class="w-full p-3 border rounded-xl bg-gray-50 text-gray-800">
+                        <option value="0">Retrait Gratuit à Lys-Lez-Lannoy (0€)</option>
+                        <option value="5">Livraison chez vous (5€)</option>
+                    </select>
+                    <div class="flex justify-between pt-4">
+                        <button type="button" onclick="goToSimStep(1)" class="px-6 py-3 bg-gray-200 text-gray-700 rounded-xl font-bold text-sm">← Retour</button>
+                        <button type="button" onclick="goToSimStep(3)" class="px-6 py-3 bg-brand-terracotta text-white rounded-xl font-bold text-sm shadow-md">Suivant →</button>
+                    </div>
+                </div>
+
+                <div id="sim-step-3" class="space-y-4 hidden">
+                    <div class="flex justify-between items-center border-b pb-2 mb-4">
+                        <h3 class="font-serif text-xl font-bold text-brand-terracotta">Étape 3/3 : Code Promo & Résultat</h3>
+                        <span class="text-xs font-bold opacity-60">3 sur 3</span>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Code Promo (facultatif)</label>
+                        <div class="flex gap-2">
+                            <input type="text" id="sim-promo-input" placeholder="Ex: JENNY10" class="flex-grow p-3 border rounded-xl bg-gray-50 text-gray-800 uppercase">
+                            <button type="button" onclick="applyPromoCode()" class="px-5 py-3 bg-brand-dark text-white rounded-xl font-bold text-sm">Appliquer</button>
+                        </div>
+                        <p id="promo-feedback" class="text-xs mt-1 font-medium hidden"></p>
+                    </div>
+                    <div class="p-5 bg-brand-rose/50 rounded-2xl flex justify-between items-center text-gray-900 mt-4">
+                        <span class="font-semibold">Estimation Totale :</span>
+                        <span id="sim-total" class="font-serif text-2xl font-bold text-brand-terracotta">25,00 €</span>
+                    </div>
+                    <div class="flex justify-between pt-4">
+                        <button type="button" onclick="goToSimStep(2)" class="px-6 py-3 bg-gray-200 text-gray-700 rounded-xl font-bold text-sm">← Retour</button>
+                        <button type="button" onclick="submitDevisRequest()" class="px-6 py-3 bg-brand-terracotta text-white rounded-xl font-bold text-sm shadow-md">Demander ce devis à Jenny</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- CONTACT -->
+    <main id="tab-contact" class="tab-content hidden flex-grow animate-fade-in py-16">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 grid md:grid-cols-2 gap-12">
+            <div>
+                <h1 class="font-serif text-4xl font-bold mb-6">Contactez Jenny</h1>
+                <p class="opacity-85 mb-8">Vous avez un projet particulier ou une question ? Envoyez-moi un message !</p>
+                <div class="space-y-6">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-full bg-brand-rose flex items-center justify-center text-brand-terracotta text-xl"><i class="fa-solid fa-phone"></i></div>
+                        <div>
+                            <span class="block text-xs uppercase tracking-wider opacity-70">Téléphone</span>
+                            <a href="tel:0665322913" class="font-semibold text-lg hover:text-brand-terracotta">06 65 32 29 13</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="p-8 dynamic-card shadow-lg">
+                <form id="contact-form" onsubmit="submitForm(event)" class="space-y-4">
+                    <div><label class="block text-sm font-medium mb-1">Votre Nom *</label><input type="text" id="contact-name" required class="w-full p-3 border rounded-xl bg-gray-50 text-gray-800"></div>
+                    <div><label class="block text-sm font-medium mb-1">Votre Téléphone *</label><input type="tel" id="contact-phone" required class="w-full p-3 border rounded-xl bg-gray-50 text-gray-800"></div>
+                    <div><label class="block text-sm font-medium mb-1">Votre Email *</label><input type="email" id="contact-email" required class="w-full p-3 border rounded-xl bg-gray-50 text-gray-800"></div>
+                    <div><label class="block text-sm font-medium mb-1">Votre Message *</label><textarea id="contact-msg" rows="4" required class="w-full p-3 border rounded-xl bg-gray-50 text-gray-800"></textarea></div>
+                    <button type="submit" class="w-full py-4 bg-brand-terracotta text-white rounded-xl font-bold shadow-md">Envoyer</button>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <!-- SUGGESTIONS -->
+    <main id="tab-suggestion" class="tab-content hidden flex-grow animate-fade-in py-16">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 space-y-8">
+            <h1 class="font-serif text-4xl font-bold text-center">Boîte à Suggestion</h1>
+            <p class="text-center opacity-85">Proposez vos idées de futures créations et votez pour celles des autres !</p>
+            <div class="p-6 dynamic-card shadow-sm space-y-4">
+                <input type="text" id="suggestion-title" placeholder="Titre de votre idée..." class="w-full p-3 border rounded-xl bg-gray-50 text-gray-800 text-sm">
+                <textarea id="suggestion-desc" rows="3" placeholder="Décrivez votre suggestion..." class="w-full p-3 border rounded-xl bg-gray-50 text-gray-800 text-sm"></textarea>
+                <button onclick="submitSuggestion()" class="px-6 py-3 bg-brand-terracotta text-white rounded-xl font-bold text-sm">Soumettre ma suggestion</button>
+            </div>
+            <div id="suggestions-list" class="space-y-4"></div>
+        </div>
+    </main>
+
+    <!-- CHAT DIRECT -->
+    <main id="tab-chat" class="tab-content hidden flex-grow animate-fade-in py-16">
+        <div class="max-w-3xl mx-auto px-4 sm:px-6">
+            <h1 class="font-serif text-4xl font-bold text-center mb-2">Discussion avec Jenny</h1>
+            <div class="dynamic-card shadow-lg flex flex-col h-[520px] overflow-hidden">
+                <div class="bg-brand-rose p-4 font-bold text-brand-terracotta flex items-center justify-between shrink-0">
+                    <span class="flex items-center gap-2">
+                        <span class="w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse"></span>
+                        Atelier Les Plaisirs de Jenny (En direct)
+                    </span>
+                    <span id="chat-client-badge" class="text-xs bg-white px-3 py-1 rounded-full shadow-sm text-brand-dark"></span>
+                </div>
+                <div id="chat-id-screen" class="flex-grow p-8 flex flex-col items-center justify-center space-y-4 bg-gray-50">
+                    <h3 class="font-serif text-xl font-bold text-center">Comment vous appelez-vous ?</h3>
+                    <input type="text" id="client-fullname-input" placeholder="Votre Nom et Prénom..." class="w-full max-w-md p-3 border rounded-xl bg-white text-sm text-center outline-none">
+                    <button onclick="initClientChat()" class="px-8 py-3 bg-brand-terracotta text-white rounded-xl font-bold text-sm shadow-md">Démarrer le chat</button>
+                </div>
+                <div id="chat-conversation-screen" class="flex-grow flex flex-col hidden min-h-0">
+                    <div id="chat-messages-box" class="flex-grow p-6 overflow-y-auto space-y-4 text-sm bg-gray-50/50"></div>
+                    <div id="chat-input-area" class="p-4 bg-white border-t flex items-center gap-2 shrink-0">
+                        <input type="file" id="client-chat-file" accept="image/*" class="hidden" onchange="sendClientPhoto(event)">
+                        <button onclick="document.getElementById('client-chat-file').click()" class="p-3 bg-brand-rose text-brand-terracotta rounded-xl"><i class="fa-solid fa-camera"></i></button>
+                        <input type="text" id="chat-input-msg" placeholder="Votre message..." class="flex-grow p-3 border rounded-xl bg-gray-50 text-gray-800 text-sm outline-none" onkeypress="if(event.key === 'Enter') sendChatMessage()">
+                        <button onclick="sendChatMessage()" class="px-6 py-3 bg-brand-terracotta text-white rounded-xl font-bold text-sm">Envoyer</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- ESPACE ADMIN JENNY -->
+    <main id="tab-admin" class="tab-content hidden flex-grow animate-fade-in">
+        <div id="admin-login" class="max-w-md mx-auto my-24 p-8 bg-white dynamic-card shadow-xl text-center text-gray-800">
+            <div class="w-16 h-16 bg-brand-rose rounded-full flex items-center justify-center text-brand-terracotta text-2xl mx-auto mb-4"><i class="fa-solid fa-user-shield"></i></div>
+            <h2 class="font-serif text-2xl font-bold mb-2">Espace Jenny</h2>
+            <form onsubmit="handleLogin(event)" class="space-y-4">
+                <input type="password" id="admin-password-input" placeholder="Mot de passe" required class="w-full p-3 border rounded-xl text-center font-bold outline-none text-gray-800">
+                <button type="submit" class="w-full py-3 bg-brand-terracotta text-white rounded-xl font-bold">Connexion</button>
+            </form>
+        </div>
+
+        <div id="admin-panel" class="hidden min-h-[calc(100vh-80px)] flex flex-col md:flex-row bg-[#FAF7F5]">
+            <aside class="w-full md:w-72 bg-[#EFECE9] border-r border-gray-300 flex flex-shrink-0 flex-col">
+                <div class="p-5 bg-[#2C2625] text-white flex justify-between items-center">
+                    <div>
+                        <span class="font-serif text-sm font-bold tracking-wider block text-white">LES PLAISIRS DE JENNY</span>
+                        <span class="text-[10px] text-gray-300 uppercase tracking-widest">ESPACE D'ADMINISTRATION</span>
+                    </div>
+                    <span class="px-2 py-0.5 bg-brand-terracotta text-white text-[10px] font-bold rounded">STAFF</span>
+                </div>
+
+                <div class="flex-grow overflow-y-auto p-4 space-y-6 text-sm text-gray-800 font-medium">
+                    <div>
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-gray-500 block mb-2 px-2">Menu Principal</span>
+                        <button onclick="switchAdminSection('dashboard')" class="admin-nav-btn w-full text-left px-3 py-2.5 rounded-xl hover:bg-white/80" data-section="dashboard"><i class="fa-solid fa-border-all w-5 text-brand-terracotta"></i> Dashboard</button>
+                    </div>
+
+                    <div>
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-gray-500 block mb-2 px-2">Contenu</span>
+                        <div class="space-y-1">
+                            <button onclick="switchAdminSection('menu')" class="admin-nav-btn w-full text-left px-3 py-2.5 rounded-xl hover:bg-white/80" data-section="menu"><i class="fa-solid fa-bars w-5 text-gray-600"></i> Menu & Titres</button>
+                            <button onclick="switchAdminSection('design')" class="admin-nav-btn w-full text-left px-3 py-2.5 rounded-xl hover:bg-white/80" data-section="design"><i class="fa-solid fa-palette w-5 text-gray-600"></i> Design & Couleurs</button>
+                            <button onclick="switchAdminSection('texts')" class="admin-nav-btn w-full text-left px-3 py-2.5 rounded-xl hover:bg-white/80" data-section="texts"><i class="fa-solid fa-pen-to-square w-5 text-gray-600"></i> Textes</button>
+                            <button onclick="switchAdminSection('photos')" class="admin-nav-btn w-full text-left px-3 py-2.5 rounded-xl hover:bg-white/80" data-section="photos"><i class="fa-solid fa-camera w-5 text-gray-600"></i> Photos</button>
+                            <button onclick="switchAdminSection('galerie')" class="admin-nav-btn w-full text-left px-3 py-2.5 rounded-xl hover:bg-white/80" data-section="galerie"><i class="fa-solid fa-tags w-5 text-gray-600"></i> Galerie</button>
+                            <button onclick="switchAdminSection('blocnote')" class="admin-nav-btn w-full text-left px-3 py-2.5 rounded-xl hover:bg-white/80" data-section="blocnote"><i class="fa-solid fa-note-sticky w-5 text-gray-600"></i> Bloc-notes</button>
+                            <button onclick="switchAdminSection('pricing')" class="admin-nav-btn w-full text-left px-3 py-2.5 rounded-xl hover:bg-white/80" data-section="pricing"><i class="fa-solid fa-calculator w-5 text-gray-600"></i> Tarifs & Devis</button>
+                            <button onclick="switchAdminSection('services')" class="admin-nav-btn w-full text-left px-3 py-2.5 rounded-xl hover:bg-white/80" data-section="services"><i class="fa-solid fa-wand-magic-sparkles w-5 text-gray-600"></i> Services</button>
+                            <button onclick="switchAdminSection('promos')" class="admin-nav-btn w-full text-left px-3 py-2.5 rounded-xl hover:bg-white/80" data-section="promos"><i class="fa-solid fa-ticket w-5 text-gray-600"></i> Codes Promo</button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-gray-500 block mb-2 px-2">Communication</span>
+                        <div class="space-y-1">
+                            <button onclick="switchAdminSection('messages')" class="admin-nav-btn w-full text-left px-3 py-2.5 rounded-xl hover:bg-white/80 flex justify-between items-center" data-section="messages">
+                                <span><i class="fa-solid fa-envelope w-5 text-gray-600"></i> Messages & Devis</span>
+                                <span id="badge-msgs" class="px-2 py-0.5 bg-red-500 text-white text-[10px] rounded-full hidden">0</span>
+                            </button>
+                            <button onclick="switchAdminSection('suggestions')" class="admin-nav-btn w-full text-left px-3 py-2.5 rounded-xl hover:bg-white/80 flex justify-between items-center" data-section="suggestions">
+                                <span><i class="fa-solid fa-lightbulb w-5 text-gray-600"></i> Suggestions</span>
+                                <span id="badge-suggs" class="px-2 py-0.5 bg-red-500 text-white text-[10px] rounded-full hidden">0</span>
+                            </button>
+                            <button onclick="switchAdminSection('chatstaff')" class="admin-nav-btn w-full text-left px-3 py-2.5 rounded-xl hover:bg-white/80" data-section="chatstaff"><i class="fa-solid fa-comments w-5 text-gray-600"></i> Chat STAFF</button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-gray-500 block mb-2 px-2">Administration</span>
+                        <div class="space-y-1">
+                            <button onclick="switchAdminSection('securite')" class="admin-nav-btn w-full text-left px-3 py-2.5 rounded-xl hover:bg-white/80" data-section="securite"><i class="fa-solid fa-shield-halved w-5 text-gray-600"></i> Sécurité</button>
+                            <button onclick="switchAdminSection('corbeille')" class="admin-nav-btn w-full text-left px-3 py-2.5 rounded-xl hover:bg-white/80" data-section="corbeille"><i class="fa-solid fa-trash w-5 text-gray-600"></i> Corbeille</button>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <div class="flex-grow flex flex-col min-w-0">
+                <div class="h-16 bg-white border-b px-6 flex justify-between items-center shadow-sm gap-4">
+                    <span id="breadcrumb-rubric" class="font-serif text-lg font-bold text-gray-800 shrink-0">Dashboard</span>
+                    
+                    <div class="flex items-center gap-3">
+                        <div class="relative w-56 sm:w-64">
+                            <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
+                            <input type="text" id="admin-quick-search" oninput="handleAdminQuickSearch(this.value)" placeholder="Recherche rapide..." class="w-full pl-8 pr-3 py-1.5 bg-gray-100 hover:bg-gray-200/70 focus:bg-white border border-transparent focus:border-brand-terracotta rounded-full text-xs text-gray-800 outline-none transition-all">
+                            <div id="admin-search-results" class="hidden absolute right-0 mt-2 w-72 bg-white rounded-2xl shadow-xl border border-gray-100 p-2 z-50 max-h-80 overflow-y-auto"></div>
+                        </div>
+                        <button onclick="logoutAdmin()" class="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-bold rounded-xl shrink-0">Déconnexion</button>
+                    </div>
+                </div>
+
+                <div class="p-6 md:p-8 overflow-y-auto flex-grow space-y-6">
+
+                    <!-- DASHBOARD -->
+                    <div id="sec-dashboard" class="admin-content-section space-y-6">
+                        <h2 class="font-serif text-3xl font-bold">Dashboard</h2>
+                        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <div class="p-6 bg-white dynamic-card shadow-sm space-y-2">
+                                <span class="text-xs font-bold uppercase tracking-wider text-gray-400">Visites</span>
+                                <div id="dash-visits-count" class="font-serif text-4xl font-bold">1</div>
+                            </div>
+                            <div class="p-6 bg-white dynamic-card shadow-sm space-y-2">
+                                <span class="text-xs font-bold uppercase tracking-wider text-gray-400">Messages & Devis</span>
+                                <div id="dash-msg-count" class="font-serif text-4xl font-bold">0</div>
+                            </div>
+                            <div class="p-6 bg-white dynamic-card shadow-sm space-y-2">
+                                <span class="text-xs font-bold uppercase tracking-wider text-gray-400">Suggestions</span>
+                                <div id="dash-sugg-count" class="font-serif text-4xl font-bold">0</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- MENU & TITRES -->
+                    <div id="sec-menu" class="admin-content-section space-y-6 hidden">
+                        <h2 class="font-serif text-3xl font-bold">Gestion Menu & Titres</h2>
+                        <div class="p-6 bg-white dynamic-card shadow-sm space-y-4 max-w-xl" id="admin-menu-items-list"></div>
+                    </div>
+
+                    <!-- DESIGN -->
+                    <div id="sec-design" class="admin-content-section space-y-6 hidden">
+                        <h2 class="font-serif text-3xl font-bold">Design, Couleurs, Animations & Polices</h2>
+                        <div class="p-6 bg-white dynamic-card shadow-sm space-y-6 max-w-2xl">
+                            <div class="grid sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-bold uppercase text-gray-600 mb-1">Palette</label>
+                                    <select id="admin-theme-select" onchange="setSiteTheme(this.value)" class="w-full p-2.5 border rounded-xl text-xs font-bold bg-white">
+                                        <option value="terracotta">Terracotta</option>
+                                        <option value="rose">Rose & Or</option>
+                                        <option value="sage">Vert Sauge</option>
+                                        <option value="noel">Noël Rouge</option>
+                                        <option value="nuit">Bleu Nuit</option>
+                                        <option value="amande">Amande</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold uppercase text-gray-600 mb-1">Animations</label>
+                                    <select id="admin-anim-select" onchange="setSiteAnimation(this.value)" class="w-full p-2.5 border rounded-xl text-xs font-bold bg-white">
+                                        <option value="none">Aucune</option>
+                                        <option value="snow">❄️ Neige</option>
+                                        <option value="petals">🌸 Pétales</option>
+                                        <option value="leaves">🍁 Feuilles</option>
+                                        <option value="hearts">❤️ Cœurs</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="grid sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-bold uppercase text-gray-600 mb-1">Style des boîtes</label>
+                                    <select id="admin-border-select" onchange="setSiteBorderStyle(this.value)" class="w-full p-2.5 border rounded-xl text-xs font-bold bg-white">
+                                        <option value="rounded">Arrondi Doux</option>
+                                        <option value="square">Moderne Carré</option>
+                                        <option value="gold">Bordure Or</option>
+                                        <option value="shadow">Ombre Flottante</option>
+                                        <option value="retro">Rétro Raturé</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold uppercase text-gray-600 mb-1">Police des titres</label>
+                                    <select id="admin-font-select" onchange="setSiteFont(this.value)" class="w-full p-2.5 border rounded-xl text-xs font-bold bg-white">
+                                        <option value="Playfair Display">Playfair Display</option>
+                                        <option value="Dancing Script">Dancing Script (Manuscrite)</option>
+                                        <option value="Montserrat">Montserrat (Moderne)</option>
+                                        <option value="Cinzel">Cinzel (Élégante)</option>
+                                        <option value="Pacifico">Pacifico (Lunaire)</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TEXTES -->
+                    <div id="sec-texts" class="admin-content-section space-y-6 hidden">
+                        <h2 class="font-serif text-3xl font-bold">Textes du Site</h2>
+                        <div class="p-6 bg-white dynamic-card shadow-sm space-y-4 max-w-xl">
+                            <div>
+                                <label class="block text-xs font-bold text-gray-600 mb-1">Grand Titre Accueil (H1)</label>
+                                <input type="text" id="admin-txt-herotitle" class="w-full p-2.5 border rounded-xl text-xs mb-2">
+                                <button onclick="saveSpecificText('heroTitle')" class="px-4 py-2 bg-brand-terracotta text-white rounded-xl text-xs font-bold">Modifier Titre</button>
+                            </div>
+                            <div class="pt-4 border-t">
+                                <label class="block text-xs font-bold text-gray-600 mb-1">Sous-titre Accueil</label>
+                                <input type="text" id="admin-txt-herosub" class="w-full p-2.5 border rounded-xl text-xs mb-2">
+                                <button onclick="saveSpecificText('heroSub')" class="px-4 py-2 bg-brand-terracotta text-white rounded-xl text-xs font-bold">Modifier Sous-titre</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PHOTOS -->
+                    <div id="sec-photos" class="admin-content-section space-y-6 hidden">
+                        <h2 class="font-serif text-3xl font-bold">Photos</h2>
+                        <div class="grid sm:grid-cols-2 gap-6 max-w-3xl">
+                            <div class="p-4 bg-white dynamic-card shadow-sm space-y-3">
+                                <h3 class="font-bold text-sm">Photo d'Accueil</h3>
+                                <img id="admin-hero-preview" src="" class="w-full h-32 object-cover rounded-xl border">
+                                <div class="flex gap-2">
+                                    <button onclick="activePhotoTarget = 'hero'; document.getElementById('global-file-input').click()" class="flex-grow py-2 bg-brand-rose text-brand-terracotta rounded-xl text-xs font-bold">Ajouter / Changer</button>
+                                    <button onclick="removePhoto('hero')" class="px-3 py-2 bg-red-100 text-red-600 rounded-xl text-xs font-bold">Supprimer</button>
+                                </div>
+                            </div>
+                            <div class="p-4 bg-white dynamic-card shadow-sm space-y-3">
+                                <h3 class="font-bold text-sm">Photo À Propos</h3>
+                                <img id="admin-about-preview" src="" class="w-full h-32 object-cover rounded-xl border">
+                                <div class="flex gap-2">
+                                    <button onclick="activePhotoTarget = 'about'; document.getElementById('global-file-input').click()" class="flex-grow py-2 bg-brand-rose text-brand-terracotta rounded-xl text-xs font-bold">Ajouter / Changer</button>
+                                    <button onclick="removePhoto('about')" class="px-3 py-2 bg-red-100 text-red-600 rounded-xl text-xs font-bold">Supprimer</button>
+                                </div>
+                            </div>
+                        </div>
+                        <input type="file" id="global-file-input" accept="image/*" class="hidden" onchange="handleGlobalPhotoUpload(event)">
+                    </div>
+
+                    <!-- GALERIE -->
+                    <div id="sec-galerie" class="admin-content-section space-y-6 hidden">
+                        <div class="flex justify-between items-center">
+                            <h2 class="font-serif text-3xl font-bold">Galerie & Nouvelles Créations</h2>
+                            <button onclick="showAddProductModal()" class="px-4 py-2 bg-brand-terracotta text-white text-xs font-bold rounded-xl">+ Ajouter une création</button>
+                        </div>
+                        <div id="product-form-card" class="hidden p-6 bg-white dynamic-card shadow-sm space-y-4 max-w-xl">
+                            <h3 class="font-bold text-sm">Nouvelle création (Ctrl+V ou bouton ci-dessous)</h3>
+                            <div class="grid sm:grid-cols-3 gap-2">
+                                <input type="text" id="prod-title" placeholder="Nom *" class="p-2.5 border rounded-xl text-xs">
+                                <input type="text" id="prod-price" placeholder="Prix *" class="p-2.5 border rounded-xl text-xs">
+                                <select id="prod-category" class="p-2.5 border rounded-xl text-xs">
+                                    <option value="Noël">Noël</option>
+                                    <option value="Bijoux">Bijoux</option>
+                                    <option value="Décoration">Décoration</option>
+                                </select>
+                            </div>
+                            <input type="text" id="prod-badge" placeholder="Badge Promo (ex: -20%)" class="w-full p-2.5 border rounded-xl text-xs">
+                            <input type="hidden" id="prod-img-data">
+                            <div>
+                                <button type="button" onclick="document.getElementById('prod-file-input').click()" class="w-full py-3 bg-white border border-gray-300 rounded-full text-brand-terracotta font-bold text-xs shadow-sm hover:bg-gray-50 transition-all">Choisir une photo</button>
+                                <input type="file" id="prod-file-input" accept="image/*" onchange="handleProductFileSelect(event)" class="hidden">
+                            </div>
+                            <div id="img-preview-box" class="hidden flex items-center gap-2 bg-gray-50 p-2 rounded-xl border">
+                                <img id="img-preview" src="" class="w-12 h-12 object-cover rounded-lg">
+                                <span class="text-xs text-green-600 font-bold">✓ Image prête</span>
+                            </div>
+                            <div class="flex gap-2">
+                                <button onclick="saveProduct()" class="px-5 py-2 bg-brand-terracotta text-white font-bold text-xs rounded-xl">Enregistrer</button>
+                                <button onclick="hideProductForm()" class="px-5 py-2 bg-gray-200 text-gray-700 font-bold text-xs rounded-xl">Annuler</button>
+                            </div>
+                        </div>
+                        <div id="admin-products-list" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+                    </div>
+
+                    <!-- BLOC-NOTES -->
+                    <div id="sec-blocnote" class="admin-content-section space-y-6 hidden">
+                        <div class="flex justify-between items-center">
+                            <h2 class="font-serif text-3xl font-bold">Bloc-notes</h2>
+                            <button onclick="addNewNotePage()" class="px-4 py-2 bg-brand-terracotta text-white text-xs font-bold rounded-xl">+ Nouvelle page</button>
+                        </div>
+                        <div class="grid md:grid-cols-3 gap-6">
+                            <div class="p-4 bg-white dynamic-card shadow-sm space-y-1" id="notes-pages-list"></div>
+                            <div class="md:col-span-2 p-6 bg-white dynamic-card shadow-sm space-y-3">
+                                <input type="text" id="note-page-title" oninput="saveCurrentNote()" class="w-full p-2 border rounded-xl font-bold">
+                                <textarea id="note-page-content" oninput="saveCurrentNote()" rows="8" class="w-full p-3 border rounded-xl text-sm"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CODES PROMO -->
+                    <div id="sec-promos" class="admin-content-section space-y-6 hidden">
+                        <h2 class="font-serif text-3xl font-bold">Codes Promo</h2>
+                        <div class="p-6 bg-white dynamic-card shadow-sm space-y-4 max-w-xl">
+                            <div class="flex gap-2">
+                                <input type="text" id="new-promo-code" placeholder="Code (ex: JENNY10)" class="p-2.5 border rounded-xl text-xs uppercase flex-grow">
+                                <input type="number" id="new-promo-discount" placeholder="Réduction €" class="p-2.5 border rounded-xl text-xs w-28">
+                                <button onclick="addPromoCode()" class="px-4 py-2.5 bg-brand-terracotta text-white rounded-xl text-xs font-bold">+ Créer</button>
+                            </div>
+                            <div id="admin-promos-list" class="space-y-2"></div>
+                        </div>
+                    </div>
+
+                    <!-- TARIFS & DEVIS -->
+                    <div id="sec-pricing" class="admin-content-section space-y-6 hidden">
+                        <h2 class="font-serif text-3xl font-bold">Tarifs & Devis</h2>
+                        <div class="p-6 bg-white dynamic-card shadow-sm space-y-4 max-w-xl">
+                            <div class="flex gap-2">
+                                <input type="text" id="new-project-name" placeholder="Nom du projet..." class="p-2.5 border rounded-xl text-xs flex-grow">
+                                <input type="text" id="new-project-price" placeholder="Prix (€)" class="p-2.5 border rounded-xl text-xs w-24">
+                                <button onclick="addProjectPricing()" class="px-4 py-2.5 bg-brand-terracotta text-white rounded-xl text-xs font-bold">+ Ajouter</button>
+                            </div>
+                            <div id="admin-pricing-list" class="space-y-2"></div>
+                        </div>
+                    </div>
+
+                    <!-- SERVICES -->
+                    <div id="sec-services" class="admin-content-section space-y-6 hidden">
+                        <h2 class="font-serif text-3xl font-bold">Services</h2>
+                        <div class="p-4 bg-brand-rose/40 rounded-xl text-xs text-brand-terracotta mb-4 font-bold">
+                            ✨ Les 6 prestations phares s'affichent automatiquement sur le site public.
+                        </div>
+                        <div id="admin-services-list" class="space-y-3 max-w-xl"></div>
+                    </div>
+
+                    <!-- MESSAGES & DEVIS -->
+                    <div id="sec-messages" class="admin-content-section space-y-6 hidden">
+                        <h2 class="font-serif text-3xl font-bold">Messages & Devis demandés</h2>
+                        <div class="p-4 bg-blue-50 border border-blue-200 rounded-xl text-xs text-blue-800 flex items-center gap-3">
+                            <i class="fa-solid fa-circle-info text-blue-500 text-lg"></i>
+                            <span><strong>À quoi sert cet espace ?</strong> Cet onglet centralise toutes les demandes de devis et questions envoyées par les visiteurs via le formulaire de contact du site.</span>
+                        </div>
+                        <div id="admin-messages-list" class="space-y-3"></div>
+                    </div>
+
+                    <!-- SUGGESTIONS -->
+                    <div id="sec-suggestions" class="admin-content-section space-y-6 hidden">
+                        <h2 class="font-serif text-3xl font-bold">Suggestions</h2>
+                        <div id="admin-suggestions-moderation" class="space-y-4"></div>
+                    </div>
+
+                    <!-- CHAT STAFF -->
+                    <div id="sec-chatstaff" class="admin-content-section space-y-6 hidden">
+                        <h2 class="font-serif text-3xl font-bold">Chat STAFF</h2>
+                        <div class="grid md:grid-cols-3 gap-6 h-[500px]">
+                            <div class="p-4 bg-white dynamic-card shadow-sm overflow-y-auto space-y-2" id="admin-chat-clients-list"></div>
+                            <div class="md:col-span-2 p-6 bg-white dynamic-card shadow-sm flex flex-col justify-between">
+                                <div class="flex justify-between items-center pb-3 border-b mb-3">
+                                    <h3 id="active-chat-client-name" class="font-serif font-bold text-base text-brand-terracotta">Sélectionnez une conversation</h3>
+                                    <button onclick="deleteActiveConversation()" class="px-3 py-1.5 bg-red-100 text-red-600 rounded-lg text-xs font-bold">Supprimer la conversation</button>
+                                </div>
+                                <div id="admin-chat-messages-box" class="flex-grow p-4 overflow-y-auto space-y-3 bg-gray-50 rounded-xl text-sm border mb-4"></div>
+                                <div class="flex items-center gap-2">
+                                    <input type="file" id="admin-chat-file" accept="image/*" class="hidden" onchange="sendAdminPhoto(event)">
+                                    <button onclick="document.getElementById('admin-chat-file').click()" class="p-3 bg-brand-rose text-brand-terracotta rounded-xl"><i class="fa-solid fa-camera"></i></button>
+                                    <input type="text" id="admin-chat-input" placeholder="Répondre en direct..." class="flex-grow p-3 border rounded-xl text-xs bg-white outline-none" onkeypress="if(event.key === 'Enter') sendAdminChatMsg()">
+                                    <button onclick="sendAdminChatMsg()" class="px-6 py-3 bg-brand-terracotta text-white rounded-xl font-bold text-xs">Envoyer</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SÉCURITÉ -->
+                    <div id="sec-securite" class="admin-content-section space-y-6 hidden">
+                        <h2 class="font-serif text-3xl font-bold">Sécurité & Mot de passe</h2>
+                        <div class="grid md:grid-cols-2 gap-6 max-w-4xl">
+                            <div class="p-6 bg-white dynamic-card shadow-sm space-y-4">
+                                <h3 class="font-bold text-xs uppercase tracking-wider text-gray-500">Modifier le mot de passe administrateur</h3>
+                                <div class="space-y-3">
+                                    <div>
+                                        <label class="block text-xs font-medium mb-1">Nouveau mot de passe</label>
+                                        <input type="password" id="admin-new-pass" placeholder="Nouveau mot de passe..." class="w-full p-2.5 border rounded-xl text-xs">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-medium mb-1">Confirmer le mot de passe</label>
+                                        <input type="password" id="admin-confirm-pass" placeholder="Confirmer..." class="w-full p-2.5 border rounded-xl text-xs">
+                                    </div>
+                                    <button onclick="updateAdminPassword()" class="w-full py-2.5 bg-brand-terracotta text-white rounded-xl text-xs font-bold">Mettre à jour le mot de passe</button>
+                                </div>
+                            </div>
+                            <div class="p-6 bg-white dynamic-card shadow-sm space-y-4">
+                                <h3 class="font-bold text-xs uppercase tracking-wider text-gray-500">Historique des connexions</h3>
+                                <div id="admin-login-history" class="space-y-2 text-xs max-h-60 overflow-y-auto"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CORBEILLE -->
+                    <div id="sec-corbeille" class="admin-content-section space-y-6 hidden">
+                        <div class="flex justify-between items-center">
+                            <h2 class="font-serif text-3xl font-bold">Corbeille</h2>
+                            <button onclick="emptyTrashBin()" class="px-4 py-2 bg-red-100 text-red-600 rounded-xl text-xs font-bold hover:bg-red-200"><i class="fa-solid fa-trash-can mr-1"></i> Vider la corbeille</button>
+                        </div>
+                        <p class="text-xs text-gray-500">Retrouvez les éléments supprimés et restaurez-les en cas d'erreur :</p>
+                        <div id="admin-trash-list" class="p-6 bg-white dynamic-card shadow-sm space-y-3 text-xs"></div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-brand-dark text-white py-8 mt-auto border-t border-brand-dark/20">
+        <div class="max-w-7xl mx-auto px-4 text-center text-sm opacity-85">
+            <p>© 2026 Les Plaisirs de Jenny. Tous droits réservés. Créations artisanales faites main à Lys-Lez-Lannoy.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Mot de passe principal fixé en dur (modifiez 'jenny2026' par le mot de passe de votre choix si besoin)
+        let adminPassword = localStorage.getItem('jenny_admin_pass') || 'jenny2026';
+        let currentTheme = localStorage.getItem('jenny_theme') || 'terracotta';
+        let activeAnimation = localStorage.getItem('jenny_anim') || 'none';
+        let activeBorderStyle = localStorage.getItem('jenny_border') || 'rounded';
+        let activePhotoTarget = 'product';
+
+        let siteVisits = parseInt(localStorage.getItem('jenny_visits')) || 0;
+        if(!sessionStorage.getItem('visited_session')) {
+            siteVisits++;
+            localStorage.setItem('jenny_visits', siteVisits);
+            sessionStorage.setItem('visited_session', 'true');
+        }
+
+        let heroImgUrl = localStorage.getItem('jenny_hero_img') || '';
+        let aboutImgUrl = localStorage.getItem('jenny_about_img') || '';
+        let heroTitleText = localStorage.getItem('jenny_hero_title') || 'Des objets faits main créés avec <span class="text-brand-terracotta italic">passion & amour</span>.';
+        let heroSubtitle = localStorage.getItem('jenny_hero_subtitle') || 'Chaque réalisation apporte une touche unique et personnelle à votre quotidien. Décorations, cadeaux originaux et créations sur-mesure faits main.';
+
+        let productsData = JSON.parse(localStorage.getItem('jenny_products')) || [
+            { id: 1, title: 'Boule de Noël Artisanale', category: 'Noël', price: '18€', badge: 'Populaire', img: 'image_generation_content/16908471540866406968' }
+        ];
+
+        let suggestionsData = JSON.parse(localStorage.getItem('jenny_suggestions')) || [
+            { id: 1, title: 'Boucles d\'oreilles dorées', desc: 'Idéal pour le printemps !', votesValid: 3, votesInvalid: 0, reply: '' }
+        ];
+        let userVotes = JSON.parse(localStorage.getItem('jenny_user_votes')) || {};
+
+        let pricingProjects = JSON.parse(localStorage.getItem('jenny_pricing')) || [
+            { id: 1, name: 'Objet Décoratif / Bougie', price: '25' },
+            { id: 2, name: 'Cadeau Personnalisé Evénement', price: '40' },
+            { id: 3, name: 'Commande Spéciale Sur-Mesure', price: '60' }
+        ];
+
+        let promoCodes = JSON.parse(localStorage.getItem('jenny_promos')) || [
+            { code: 'JENNY10', discount: 10 }
+        ];
+
+        let clientConversations = JSON.parse(localStorage.getItem('jenny_conversations')) || {};
+        let activeChatClientId = localStorage.getItem('jenny_active_client') || null;
+        let currentClientName = localStorage.getItem('jenny_client_name') || '';
+
+        let loginHistory = JSON.parse(localStorage.getItem('jenny_login_history')) || [];
+        let receivedMessages = JSON.parse(localStorage.getItem('jenny_messages')) || [];
+        let trashBin = JSON.parse(localStorage.getItem('jenny_trash')) || [];
+        let notePages = JSON.parse(localStorage.getItem('jenny_notes')) || [{ id: '1', title: 'Notes Atelier', content: 'idées de créations...' }];
+        let activeNoteId = localStorage.getItem('jenny_active_note') || '1';
+
+        let navTabs = JSON.parse(localStorage.getItem('jenny_nav_tabs')) || [
+            { id: 'home', label: 'Accueil' },
+            { id: 'about', label: 'À Propos' },
+            { id: 'services', label: 'Services' },
+            { id: 'vitrine', label: 'Vitrine' },
+            { id: 'pricing', label: 'Tarifs & Devis' },
+            { id: 'suggestion', label: 'Suggestion' },
+            { id: 'chat', label: 'Chat Direct' },
+            { id: 'contact', label: 'Contact' }
+        ];
+
+        let servicesData = [
+            { title: 'Créations Artisanales', desc: 'Fabrication d’objets faits main avec soin et créativité.' },
+            { title: 'Objets Personnalisés', desc: 'Créations adaptées aux goûts et aux demandes uniques des clients.' },
+            { title: 'Cadeaux Originaux', desc: 'Réalisation de cadeaux uniques pour toutes les occasions.' },
+            { title: 'Décorations Faites Main', desc: 'Création d’objets décoratifs chaleureux pour la maison.' },
+            { title: 'Commandes Sur Mesure', desc: 'Fabrication de créations selon vos envies spécifiques.' },
+            { title: 'Créations pour Événements', desc: 'Objets personnalisés pour anniversaires, mariages et fêtes.' }
+        ];
+
+        const themes = {
+            terracotta: { primary: '#D97762', secondary: '#FCEFEF', accent: '#C5624E', bg: '#FAF7F5', textMain: '#2C2625' },
+            rose: { primary: '#D46A92', secondary: '#FDF0F5', accent: '#B84F77', bg: '#FFF9FB', textMain: '#3B2A32' },
+            sage: { primary: '#6B8E78', secondary: '#EDF4F0', accent: '#52735E', bg: '#F7FAF8', textMain: '#2E3831' },
+            noel: { primary: '#B8333A', secondary: '#FDECEC', accent: '#962228', bg: '#FCF8F7', textMain: '#3A2425' },
+            nuit: { primary: '#D4AF37', secondary: '#2E3A59', accent: '#C59B27', bg: '#161D2B', textMain: '#F3F4F6' },
+            amande: { primary: '#658B6F', secondary: '#F0F5EE', accent: '#4E6B54', bg: '#F4F7F3', textMain: '#2D382B' }
+        };
+
+        function saveToStorage() {
+            localStorage.setItem('jenny_admin_pass', adminPassword);
+            localStorage.setItem('jenny_products', JSON.stringify(productsData));
+            localStorage.setItem('jenny_messages', JSON.stringify(receivedMessages));
+            localStorage.setItem('jenny_suggestions', JSON.stringify(suggestionsData));
+            localStorage.setItem('jenny_user_votes', JSON.stringify(userVotes));
+            localStorage.setItem('jenny_pricing', JSON.stringify(pricingProjects));
+            localStorage.setItem('jenny_promos', JSON.stringify(promoCodes));
+            localStorage.setItem('jenny_conversations', JSON.stringify(clientConversations));
+            localStorage.setItem('jenny_login_history', JSON.stringify(loginHistory));
+            localStorage.setItem('jenny_trash', JSON.stringify(trashBin));
+            localStorage.setItem('jenny_notes', JSON.stringify(notePages));
+            localStorage.setItem('jenny_nav_tabs', JSON.stringify(navTabs));
+            localStorage.setItem('jenny_theme', currentTheme);
+            localStorage.setItem('jenny_anim', activeAnimation);
+            localStorage.setItem('jenny_border', activeBorderStyle);
+            localStorage.setItem('jenny_hero_img', heroImgUrl);
+            localStorage.setItem('jenny_about_img', aboutImgUrl);
+            localStorage.setItem('jenny_hero_title', heroTitleText);
+            localStorage.setItem('jenny_hero_subtitle', heroSubtitle);
+            localStorage.setItem('jenny_client_name', currentClientName);
+            localStorage.setItem('jenny_active_client', activeChatClientId || '');
+            localStorage.setItem('jenny_active_note', activeNoteId);
+        }
+
+        // --- SYNCHRONISATION AUTOMATIQUE TEMPS RÉEL ---
+        let lastChatStateHash = '';
+        function syncLiveChat() {
+            const rawConversations = localStorage.getItem('jenny_conversations') || '{}';
+            if (rawConversations !== lastChatStateHash) {
+                lastChatStateHash = rawConversations;
+                clientConversations = JSON.parse(rawConversations);
+
+                if (activeChatClientId) {
+                    if (clientConversations[activeChatClientId]) {
+                        renderChatMessages();
+                    } else if (currentClientName && !document.getElementById('chat-conversation-screen').classList.contains('hidden')) {
+                        document.getElementById('chat-messages-box').innerHTML += `
+                            <div class="p-4 bg-brand-rose/60 border border-brand-terracotta/30 rounded-2xl text-center text-xs text-brand-dark my-3">
+                                <strong>Jenny a clôturé cette discussion</strong> en espérant avoir répondu au mieux à vos attentes. Vous pouvez relancer un nouveau chat ci-dessous.
+                            </div>
+                        `;
+                        document.getElementById('chat-input-area').innerHTML = '<button onclick="restartClientChat()" class="w-full py-3 bg-brand-terracotta text-white rounded-xl font-bold text-sm">Relancer une nouvelle discussion</button>';
+                        activeChatClientId = null;
+                        localStorage.setItem('jenny_active_client', '');
+                    }
+                }
+
+                if (!document.getElementById('admin-panel').classList.contains('hidden')) {
+                    renderAdminChatClients();
+                    if (activeAdminChatId && clientConversations[activeAdminChatId]) {
+                        if (!clientConversations[activeAdminChatId].seenByJenny) {
+                            clientConversations[activeAdminChatId].seenByJenny = true;
+                            saveToStorage();
+                        }
+                        renderAdminChatBox();
+                    }
+                }
+            }
+        }
+
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'jenny_conversations') syncLiveChat();
+        });
+        setInterval(syncLiveChat, 1000);
+
+        // --- MODIFICATION DU MOT DE PASSE ---
+        function updateAdminPassword() {
+            const newPass = document.getElementById('admin-new-pass').value.trim();
+            const confirmPass = document.getElementById('admin-confirm-pass').value.trim();
+            if (!newPass || !confirmPass) {
+                alert('Veuillez remplir les deux champs.');
+                return;
+            }
+            if (newPass !== confirmPass) {
+                alert('Les mots de passe ne correspondent pas.');
+                return;
+            }
+            adminPassword = newPass;
+            saveToStorage();
+            document.getElementById('admin-new-pass').value = '';
+            document.getElementById('admin-confirm-pass').value = '';
+            alert('Mot de passe mis à jour avec succès !');
+        }
+
+        // --- RECHERCHE RAPIDE ESPACE CLIENT ---
+        function handleClientQuickSearch(query) {
+            const resultsBox = document.getElementById('client-search-results');
+            if (!resultsBox) return;
+            const q = query.trim().toLowerCase();
+            if (!q) { resultsBox.classList.add('hidden'); return; }
+            const matchedProducts = productsData.filter(p => p.title.toLowerCase().includes(q) || p.category.toLowerCase().includes(q));
+            const matchedServices = servicesData.filter(s => s.title.toLowerCase().includes(q) || s.desc.toLowerCase().includes(q));
+
+            let html = '';
+            if (matchedProducts.length > 0) {
+                html += `<div class="text-[10px] font-bold uppercase text-gray-400 px-2 py-1">Créations</div>`;
+                html += matchedProducts.map(p => `
+                    <div onclick="switchTab('vitrine'); document.getElementById('client-search-results').classList.add('hidden');" class="flex items-center gap-2 p-2 hover:bg-brand-rose/40 rounded-xl cursor-pointer text-xs">
+                        <img src="${p.img}" class="w-8 h-8 rounded-lg object-cover">
+                        <div>
+                            <div class="font-bold text-gray-800">${p.title}</div>
+                            <div class="text-[10px] text-brand-terracotta font-semibold">${p.category} • ${p.price}</div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+            if (matchedServices.length > 0) {
+                html += `<div class="text-[10px] font-bold uppercase text-gray-400 px-2 py-1 mt-1">Prestations</div>`;
+                html += matchedServices.map(s => `
+                    <div onclick="switchTab('services'); document.getElementById('client-search-results').classList.add('hidden');" class="p-2 hover:bg-brand-rose/40 rounded-xl cursor-pointer text-xs">
+                        <div class="font-bold text-gray-800">✨ ${s.title}</div>
+                    </div>
+                `).join('');
+            }
+            if (!html) { html = `<div class="p-3 text-xs text-gray-400 text-center">Aucun résultat pour "${query}"</div>`; }
+            resultsBox.innerHTML = html;
+            resultsBox.classList.remove('hidden');
+        }
+
+        // --- RECHERCHE RAPIDE ESPACE JENNY (ADMIN) ---
+        const adminSearchDirectory = [
+            { label: 'Dashboard & Statistiques', section: 'dashboard', icon: 'fa-border-all' },
+            { label: 'Menu & Titres', section: 'menu', icon: 'fa-bars' },
+            { label: 'Design, Couleurs, Animations & Polices', section: 'design', icon: 'fa-palette' },
+            { label: 'Textes du site (Accueil)', section: 'texts', icon: 'fa-pen-to-square' },
+            { label: 'Photos (Accueil & À Propos)', section: 'photos', icon: 'fa-camera' },
+            { label: 'Galerie & Nouvelles Créations', section: 'galerie', icon: 'fa-tags' },
+            { label: 'Bloc-notes Atelier', section: 'blocnote', icon: 'fa-note-sticky' },
+            { label: 'Tarifs & Devis', section: 'pricing', icon: 'fa-calculator' },
+            { label: 'Services & Prestations', section: 'services', icon: 'fa-wand-magic-sparkles' },
+            { label: 'Codes Promo', section: 'promos', icon: 'fa-ticket' },
+            { label: 'Messages & Devis demandés', section: 'messages', icon: 'fa-envelope' },
+            { label: 'Suggestions & Votes', section: 'suggestions', icon: 'fa-lightbulb' },
+            { label: 'Chat STAFF (Discussions clients)', section: 'chatstaff', icon: 'fa-comments' },
+            { label: 'Sécurité & Mot de passe', section: 'securite', icon: 'fa-shield-halved' },
+            { label: 'Corbeille', section: 'corbeille', icon: 'fa-trash' }
+        ];
+
+        function handleAdminQuickSearch(query) {
+            const resultsBox = document.getElementById('admin-search-results');
+            if (!resultsBox) return;
+            const q = query.trim().toLowerCase();
+            if (!q) { resultsBox.classList.add('hidden'); return; }
+            const matchedSections = adminSearchDirectory.filter(item => item.label.toLowerCase().includes(q));
+            const matchedProducts = productsData.filter(p => p.title.toLowerCase().includes(q));
+
+            let html = '';
+            if (matchedSections.length > 0) {
+                html += `<div class="text-[10px] font-bold uppercase text-gray-400 px-2 py-1">Rubriques Admin</div>`;
+                html += matchedSections.map(item => `
+                    <div onclick="switchAdminSection('${item.section}'); document.getElementById('admin-search-results').classList.add('hidden'); document.getElementById('admin-quick-search').value='';" class="flex items-center gap-2.5 p-2 hover:bg-brand-rose/40 rounded-xl cursor-pointer text-xs font-medium text-gray-800">
+                        <i class="fa-solid ${item.icon} w-4 text-brand-terracotta"></i>
+                        <span>${item.label}</span>
+                    </div>
+                `).join('');
+            }
+            if (matchedProducts.length > 0) {
+                html += `<div class="text-[10px] font-bold uppercase text-gray-400 px-2 py-1 mt-1">Créations dans la galerie</div>`;
+                html += matchedProducts.map(p => `
+                    <div onclick="switchAdminSection('galerie'); document.getElementById('admin-search-results').classList.add('hidden');" class="flex items-center gap-2 p-2 hover:bg-brand-rose/40 rounded-xl cursor-pointer text-xs">
+                        <img src="${p.img}" class="w-7 h-7 rounded object-cover">
+                        <span class="font-bold">${p.title} (${p.price})</span>
+                    </div>
+                `).join('');
+            }
+            if (!html) { html = `<div class="p-3 text-xs text-gray-400 text-center">Aucun résultat trouvé</div>`; }
+            resultsBox.innerHTML = html;
+            resultsBox.classList.remove('hidden');
+        }
+
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('#client-quick-search') && !e.target.closest('#client-search-results')) {
+                document.getElementById('client-search-results')?.classList.add('hidden');
+            }
+            if (!e.target.closest('#admin-quick-search') && !e.target.closest('#admin-search-results')) {
+                document.getElementById('admin-search-results')?.classList.add('hidden');
+            }
+        });
+
+        function setSiteTheme(themeName) {
+            currentTheme = themeName;
+            const t = themes[themeName] || themes.terracotta;
+            document.documentElement.style.setProperty('--color-primary', t.primary);
+            document.documentElement.style.setProperty('--color-secondary', t.secondary);
+            document.documentElement.style.setProperty('--color-accent', t.accent);
+            document.documentElement.style.setProperty('--color-bg', t.bg);
+            document.documentElement.style.setProperty('--color-text-main', t.textMain);
+            saveToStorage();
+        }
+
+        function setSiteFont(fontName) {
+            document.documentElement.style.setProperty('--font-title', fontName);
+            saveToStorage();
+        }
+
+        function setSiteAnimation(anim) {
+            activeAnimation = anim;
+            saveToStorage();
+            initAnimations();
+        }
+
+        function setSiteBorderStyle(style) {
+            activeBorderStyle = style;
+            if(style === 'rounded') document.documentElement.style.setProperty('--card-radius', '1rem');
+            if(style === 'square') document.documentElement.style.setProperty('--card-radius', '0rem');
+            if(style === 'gold') document.documentElement.style.setProperty('--card-border', '2px solid #D4AF37');
+            if(style === 'shadow') document.documentElement.style.setProperty('--card-radius', '1.5rem');
+            if(style === 'retro') document.documentElement.style.setProperty('--card-border', '2px dashed #D97762');
+            saveToStorage();
+        }
+
+        function initAnimations() {
+            const container = document.getElementById('particles-container');
+            if(!container) return;
+            container.innerHTML = '';
+            if(activeAnimation === 'none') return;
+            const charMap = { snow: '❄️', petals: '🌸', leaves: '🍁', hearts: '❤️' };
+            const symbol = charMap[activeAnimation] || '❄️';
+            setInterval(() => {
+                const p = document.createElement('div');
+                p.className = 'particle';
+                p.innerText = symbol;
+                p.style.left = Math.random() * 100 + 'vw';
+                p.style.fontSize = (Math.random() * 10 + 12) + 'px';
+                p.style.animationDuration = (Math.random() * 5 + 5) + 's';
+                container.appendChild(p);
+                setTimeout(() => p.remove(), 10000);
+            }, 800);
+        }
+
+        function switchAdminSection(secId) {
+            document.querySelectorAll('.admin-content-section').forEach(el => el.classList.add('hidden'));
+            const target = document.getElementById(`sec-${secId}`);
+            if(target) target.classList.remove('hidden');
+            const btn = document.querySelector(`[data-section="${secId}"]`);
+            if(btn) document.getElementById('breadcrumb-rubric').innerText = btn.innerText.trim();
+            if(secId === 'chatstaff') renderAdminChatClients();
+            if(secId === 'menu') renderAdminMenuManagement();
+            if(secId === 'blocnote') renderNotesApp();
+            if(secId === 'pricing') renderAdminPricing();
+            if(secId === 'promos') renderAdminPromos();
+            if(secId === 'suggestions') renderAdminSuggestions();
+            if(secId === 'securite') renderLoginHistory();
+            if(secId === 'corbeille') renderTrashBin();
+            if(secId === 'messages') renderAdminMessages();
+        }
+
+        function toggleMobileMenu() { document.getElementById('mobile-menu').classList.toggle('hidden'); }
+
+        function compressImage(file, maxSize, callback) {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    let width = img.width, height = img.height;
+                    if (width > height) { if (width > maxSize) { height *= maxSize / width; width = maxSize; } }
+                    else { if (height > maxSize) { width *= maxSize / height; height = maxSize; } }
+                    canvas.width = width; canvas.height = height;
+                    canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+                    callback(canvas.toDataURL('image/jpeg', 0.82));
+                };
+                img.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function handleGlobalPhotoUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            compressImage(file, 900, (dataUrl) => {
+                if (activePhotoTarget === 'hero') heroImgUrl = dataUrl;
+                if (activePhotoTarget === 'about') aboutImgUrl = dataUrl;
+                saveToStorage(); renderAll();
+                alert('Photo mise à jour !');
+            });
+        }
+
+        function removePhoto(target) {
+            if(target === 'hero') heroImgUrl = '';
+            if(target === 'about') aboutImgUrl = '';
+            saveToStorage(); renderAll();
+            alert('Photo supprimée.');
+        }
+
+        function saveSpecificText(type) {
+            if(confirm('Êtes-vous sûr de modifier ce texte ?')) {
+                if(type === 'heroTitle') heroTitleText = document.getElementById('admin-txt-herotitle').value;
+                if(type === 'heroSub') heroSubtitle = document.getElementById('admin-txt-herosub').value;
+                saveToStorage(); renderAll();
+                alert('Texte mis à jour !');
+            }
+        }
+
+        function renderAdminMenuManagement() {
+            const list = document.getElementById('admin-menu-items-list');
+            if(!list) return;
+            list.innerHTML = navTabs.map((tab, idx) => `
+                <div class="flex items-center gap-2 bg-gray-50 p-3 rounded-xl border text-xs">
+                    <input type="text" id="menu-title-input-${idx}" value="${tab.label}" class="flex-grow p-2 border rounded-lg bg-white">
+                    <button onclick="updateMenuTitle(${idx})" class="px-3 py-2 bg-brand-terracotta text-white rounded-lg font-bold">Modifier</button>
+                    <button onclick="deleteMenuTab(${idx})" class="px-3 py-2 bg-red-100 text-red-600 rounded-lg font-bold">Supprimer</button>
+                </div>
+            `).join('');
+        }
+
+        function updateMenuTitle(idx) {
+            const newVal = document.getElementById(`menu-title-input-${idx}`).value.trim();
+            if(newVal) {
+                navTabs[idx].label = newVal;
+                saveToStorage(); renderAll(); renderAdminMenuManagement();
+                alert('Titre du menu mis à jour !');
+            }
+        }
+
+        function deleteMenuTab(idx) {
+            if(confirm('Supprimer ce menu ?')) {
+                const removed = navTabs.splice(idx, 1)[0];
+                trashBin.unshift({ type: 'Menu', desc: removed.label, data: removed, time: new Date().toLocaleTimeString() });
+                saveToStorage(); renderAll(); renderAdminMenuManagement();
+            }
+        }
+
+        function renderTrashBin() {
+            const box = document.getElementById('admin-trash-list');
+            if(!box) return;
+            if(trashBin.length === 0) {
+                box.innerHTML = '<p class="text-gray-400 italic">La corbeille est vide.</p>';
+                return;
+            }
+            box.innerHTML = trashBin.map((t, idx) => `
+                <div class="p-3 bg-gray-50 rounded-xl border flex justify-between items-center text-xs">
+                    <div><strong>[${t.type}]</strong> ${t.desc}</div>
+                    <div class="flex gap-2">
+                        <button onclick="restoreTrashItem(${idx})" class="px-3 py-1 bg-green-100 text-green-700 rounded-lg font-bold">Restaurer</button>
+                        <button onclick="permDeleteTrash(${idx})" class="px-3 py-1 bg-red-100 text-red-600 rounded-lg">Supprimer définitivement</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function restoreTrashItem(idx) {
+            const item = trashBin.splice(idx, 1)[0];
+            if(item.type === 'Galerie') productsData.push(item.data);
+            if(item.type === 'Menu') navTabs.push(item.data);
+            if(item.type === 'Suggestion') suggestionsData.push(item.data);
+            saveToStorage(); renderAll(); renderTrashBin();
+            alert('Élément restauré avec succès !');
+        }
+
+        function permDeleteTrash(idx) {
+            trashBin.splice(idx, 1);
+            saveToStorage(); renderTrashBin();
+        }
+
+        function emptyTrashBin() {
+            if(confirm('Vider toute la corbeille ?')) {
+                trashBin = [];
+                saveToStorage(); renderTrashBin();
+            }
+        }
+
+        function submitSuggestion() {
+            const title = document.getElementById('suggestion-title').value.trim();
+            const desc = document.getElementById('suggestion-desc').value.trim();
+            if(!title || !desc) { alert('Remplissez tous les champs.'); return; }
+            suggestionsData.unshift({ id: Date.now(), title, desc, votesValid: 0, votesInvalid: 0, reply: '' });
+            saveToStorage(); renderSuggestions();
+            document.getElementById('suggestion-title').value = '';
+            document.getElementById('suggestion-desc').value = '';
+            updateNotifications();
+            alert('Suggestion publiée !');
+        }
+
+        function renderSuggestions() {
+            const list = document.getElementById('suggestions-list');
+            if(!list) return;
+            list.innerHTML = suggestionsData.map(s => {
+                const voted = userVotes[s.id];
+                return `
+                    <div class="p-6 dynamic-card shadow-sm space-y-3">
+                        <h3 class="font-serif text-xl font-bold">${s.title}</h3>
+                        <p class="text-sm opacity-85">${s.desc}</p>
+                        <div class="flex items-center justify-between pt-2 border-t text-xs">
+                            <div class="flex gap-2">
+                                <button onclick="voteSuggestion(${s.id}, 'valid')" ${voted ? 'disabled class="px-3 py-1.5 bg-gray-200 text-gray-500 font-bold rounded-lg cursor-not-allowed"' : 'class="px-3 py-1.5 bg-green-100 text-green-700 font-bold rounded-lg hover:bg-green-200"'}>👍 Je valide (${s.votesValid})</button>
+                                <button onclick="voteSuggestion(${s.id}, 'invalid')" ${voted ? 'disabled class="px-3 py-1.5 bg-gray-200 text-gray-500 font-bold rounded-lg cursor-not-allowed"' : 'class="px-3 py-1.5 bg-red-100 text-red-700 font-bold rounded-lg hover:bg-red-200"'}>👎 Je ne valide pas (${s.votesInvalid})</button>
+                            </div>
+                            ${voted ? '<span class="text-xs text-brand-terracotta font-semibold italic">✓ Vous avez déjà voté</span>' : ''}
+                        </div>
+                        ${s.reply ? `<div class="mt-3 p-3 bg-brand-rose/40 rounded-xl text-xs"><strong class="text-brand-terracotta">Jenny :</strong> ${s.reply}</div>` : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderAdminSuggestions() {
+            const list = document.getElementById('admin-suggestions-moderation');
+            if(!list) return;
+            if(suggestionsData.length === 0) { list.innerHTML = '<p class="text-xs text-gray-400">Aucune suggestion.</p>'; return; }
+            list.innerHTML = suggestionsData.map(s => `
+                <div class="p-4 bg-white rounded-xl border text-xs space-y-2">
+                    <div class="flex justify-between items-center"><strong class="text-sm font-serif">${s.title}</strong> <button onclick="deleteSuggestion(${s.id})" class="text-red-500">Supprimer</button></div>
+                    <p class="text-gray-600">${s.desc}</p>
+                    <div class="flex gap-2 pt-2">
+                        <input type="text" id="sugg-reply-${s.id}" value="${s.reply || ''}" placeholder="Répondre..." class="flex-grow p-2 border rounded-lg bg-gray-50">
+                        <button onclick="saveSuggReply(${s.id})" class="px-3 py-1 bg-brand-terracotta text-white rounded-lg font-bold">Répondre</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function saveSuggReply(id) {
+            const val = document.getElementById(`sugg-reply-${id}`).value;
+            const s = suggestionsData.find(item => item.id === id);
+            if(s) { s.reply = val; saveToStorage(); renderAdminSuggestions(); updateNotifications(); alert('Réponse enregistrée !'); }
+        }
+
+        function deleteSuggestion(id) {
+            const s = suggestionsData.find(item => item.id === id);
+            if(s) trashBin.unshift({ type: 'Suggestion', desc: s.title, data: s, time: new Date().toLocaleTimeString() });
+            suggestionsData = suggestionsData.filter(item => item.id !== id);
+            saveToStorage(); renderAdminSuggestions(); updateNotifications();
+        }
+
+        function voteSuggestion(id, type) {
+            if(userVotes[id]) return;
+            const s = suggestionsData.find(item => item.id === id);
+            if(s) {
+                if(type === 'valid') s.votesValid++;
+                if(type === 'invalid') s.votesInvalid++;
+                userVotes[id] = type;
+                saveToStorage(); renderSuggestions();
+                alert('Vote enregistré !');
+            }
+        }
+
+        // --- CHAT CLIENT & STAFF EN TEMPS RÉEL (CORRIGÉ & ROBUSTE) ---
+        function initClientChat() {
+            const input = document.getElementById('client-fullname-input').value.trim();
+            if(!input) { alert('Entrez votre nom et prénom.'); return; }
+            currentClientName = input;
+            if(!activeChatClientId) activeChatClientId = 'client_' + Date.now();
+            if(!clientConversations[activeChatClientId]) {
+                clientConversations[activeChatClientId] = { name: currentClientName, messages: [{ sender: currentClientName, text: 'Bonjour !' }], seenByJenny: false };
+            }
+            saveToStorage();
+            document.getElementById('chat-id-screen').classList.add('hidden');
+            document.getElementById('chat-conversation-screen').classList.remove('hidden');
+            document.getElementById('chat-client-badge').innerText = 'Connecté : ' + currentClientName;
+            renderChatMessages();
+        }
+
+        function restartClientChat() {
+            activeChatClientId = 'client_' + Date.now();
+            clientConversations[activeChatClientId] = { name: currentClientName, messages: [{ sender: currentClientName, text: 'Bonjour !' }], seenByJenny: false };
+            saveToStorage();
+            document.getElementById('chat-input-area').innerHTML = `
+                <input type="file" id="client-chat-file" accept="image/*" class="hidden" onchange="sendClientPhoto(event)">
+                <button onclick="document.getElementById('client-chat-file').click()" class="p-3 bg-brand-rose text-brand-terracotta rounded-xl"><i class="fa-solid fa-camera"></i></button>
+                <input type="text" id="chat-input-msg" placeholder="Votre message..." class="flex-grow p-3 border rounded-xl bg-gray-50 text-gray-800 text-sm outline-none" onkeypress="if(event.key === 'Enter') sendChatMessage()">
+                <button onclick="sendChatMessage()" class="px-6 py-3 bg-brand-terracotta text-white rounded-xl font-bold text-sm">Envoyer</button>
+            `;
+            renderChatMessages();
+        }
+
+        function sendChatMessage() {
+            const input = document.getElementById('chat-input-msg');
+            const text = input.value.trim();
+            if(!text) return;
+            if(!clientConversations[activeChatClientId]) return;
+            clientConversations[activeChatClientId].messages.push({ sender: currentClientName, text });
+            clientConversations[activeChatClientId].seenByJenny = false;
+            saveToStorage();
+            lastChatStateHash = localStorage.getItem('jenny_conversations');
+            renderChatMessages();
+            input.value = '';
+        }
+
+        function sendClientPhoto(event) {
+            const file = event.target.files[0];
+            if(!file) return;
+            compressImage(file, 600, (dataUrl) => {
+                if(!clientConversations[activeChatClientId]) return;
+                clientConversations[activeChatClientId].messages.push({ sender: currentClientName, img: dataUrl });
+                clientConversations[activeChatClientId].seenByJenny = false;
+                saveToStorage();
+                lastChatStateHash = localStorage.getItem('jenny_conversations');
+                renderChatMessages();
+            });
+        }
+
+        function renderChatMessages() {
+            const box = document.getElementById('chat-messages-box');
+            if(!box || !activeChatClientId || !clientConversations[activeChatClientId]) return;
+            const c = clientConversations[activeChatClientId];
+            let html = c.messages.map(m => {
+                let isMe = m.sender === currentClientName;
+                let bubbleClass = isMe ? 'bg-brand-terracotta text-white' : 'bg-white border text-gray-800 shadow-sm';
+                let contentHtml = '';
+                if (m.text) {
+                    contentHtml += `<div>${m.text}</div>`;
+                }
+                if (m.img) {
+                    contentHtml += `<div class="mt-1 bg-white p-1 rounded-xl inline-block"><img src="${m.img}" class="w-48 h-auto rounded-lg object-cover shadow-sm"></div>`;
+                }
+                return `
+                    <div class="flex ${isMe ? 'justify-end' : 'justify-start'}">
+                        <div class="max-w-[75%] p-3 rounded-2xl ${bubbleClass}">
+                            <span class="block text-[10px] font-bold opacity-70 mb-0.5">${m.sender}</span>
+                            ${contentHtml}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            if(c.seenByJenny) {
+                html += `<div class="text-center text-[11px] text-green-600 font-medium italic mt-2">✓ Jenny a vu votre message</div>`;
+            }
+            box.innerHTML = html;
+            box.scrollTop = box.scrollHeight;
+        }
+
+        let activeAdminChatId = null;
+        function renderAdminChatClients() {
+            const list = document.getElementById('admin-chat-clients-list');
+            if(!list) return;
+            const keys = Object.keys(clientConversations);
+            if(keys.length === 0) { list.innerHTML = '<p class="text-xs text-gray-400">Aucune discussion.</p>'; return; }
+            list.innerHTML = keys.map(id => `<div onclick="selectAdminChatClient('${id}')" class="p-3 rounded-xl cursor-pointer text-xs font-bold ${id === activeAdminChatId ? 'bg-brand-rose text-brand-terracotta' : 'bg-gray-50 hover:bg-gray-100'}">👤 ${clientConversations[id].name}</div>`).join('');
+        }
+
+        function selectAdminChatClient(id) {
+            activeAdminChatId = id;
+            if(clientConversations[id]) {
+                clientConversations[id].seenByJenny = true;
+                saveToStorage();
+                lastChatStateHash = localStorage.getItem('jenny_conversations');
+            }
+            renderAdminChatClients();
+            renderAdminChatBox();
+        }
+
+        function renderAdminChatBox() {
+            const box = document.getElementById('admin-chat-messages-box');
+            if(!activeAdminChatId || !clientConversations[activeAdminChatId]) return;
+            const c = clientConversations[activeAdminChatId];
+            document.getElementById('active-chat-client-name').innerText = 'Discussion avec : ' + c.name;
+            box.innerHTML = c.messages.map(m => {
+                let isJenny = m.sender === 'Jenny';
+                let bubbleClass = isJenny ? 'bg-brand-terracotta text-white' : 'bg-white border text-gray-800';
+                let contentHtml = '';
+                if (m.text) {
+                    contentHtml += `<div>${m.text}</div>`;
+                }
+                if (m.img) {
+                    contentHtml += `<div class="mt-1 bg-white p-1 rounded-xl inline-block"><img src="${m.img}" class="w-48 h-auto rounded-lg object-cover shadow-sm"></div>`;
+                }
+                return `
+                    <div class="flex ${isJenny ? 'justify-end' : 'justify-start'}">
+                        <div class="max-w-[75%] p-3 rounded-2xl ${bubbleClass}">
+                            <span class="block text-[10px] font-bold opacity-70 mb-0.5">${m.sender}</span>
+                            ${contentHtml}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            box.scrollTop = box.scrollHeight;
+        }
+
+        function sendAdminChatMsg() {
+            const input = document.getElementById('admin-chat-input');
+            const text = input.value.trim();
+            if(!text || !activeAdminChatId) return;
+            clientConversations[activeAdminChatId].messages.push({ sender: 'Jenny', text });
+            clientConversations[activeAdminChatId].seenByJenny = true;
+            saveToStorage();
+            lastChatStateHash = localStorage.getItem('jenny_conversations');
+            renderAdminChatBox();
+            if (activeChatClientId === activeAdminChatId) renderChatMessages();
+            input.value = '';
+        }
+
+        function sendAdminPhoto(event) {
+            const file = event.target.files[0];
+            if(!file || !activeAdminChatId) return;
+            compressImage(file, 600, (dataUrl) => {
+                if(!clientConversations[activeAdminChatId]) return;
+                clientConversations[activeAdminChatId].messages.push({ sender: 'Jenny', img: dataUrl });
+                clientConversations[activeAdminChatId].seenByJenny = true;
+                saveToStorage();
+                lastChatStateHash = localStorage.getItem('jenny_conversations');
+                renderAdminChatBox();
+                if(activeChatClientId === activeAdminChatId) renderChatMessages();
+            });
+        }
+
+        function deleteActiveConversation() {
+            if(!activeAdminChatId) return;
+            if(confirm('Supprimer cette conversation ?')) {
+                const targetId = activeAdminChatId;
+                delete clientConversations[targetId];
+                saveToStorage();
+                lastChatStateHash = localStorage.getItem('jenny_conversations');
+                if (activeChatClientId === targetId) {
+                    document.getElementById('chat-messages-box').innerHTML += `
+                        <div class="p-4 bg-brand-rose/60 border border-brand-terracotta/30 rounded-2xl text-center text-xs text-brand-dark my-3">
+                            <strong>Jenny a clôturé cette discussion</strong> en espérant avoir répondu au mieux à vos attentes. Vous pouvez relancer un nouveau chat ci-dessous.
+                        </div>
+                    `;
+                    document.getElementById('chat-input-area').innerHTML = '<button onclick="restartClientChat()" class="w-full py-3 bg-brand-terracotta text-white rounded-xl font-bold text-sm">Relancer une nouvelle discussion</button>';
+                    activeChatClientId = null;
+                    localStorage.setItem('jenny_active_client', '');
+                }
+                activeAdminChatId = null;
+                document.getElementById('active-chat-client-name').innerText = 'Sélectionnez une conversation';
+                document.getElementById('admin-chat-messages-box').innerHTML = '';
+                renderAdminChatClients();
+            }
+        }
+
+        // --- CODES PROMO & TARIFS ---
+        function renderAdminPromos() {
+            const list = document.getElementById('admin-promos-list');
+            if(!list) return;
+            list.innerHTML = promoCodes.map((p, idx) => `
+                <div class="flex justify-between items-center p-2.5 bg-gray-50 rounded-xl border text-xs">
+                    <span class="font-bold uppercase text-brand-terracotta">${p.code} (-${p.discount}€)</span>
+                    <button onclick="deletePromo(${idx})" class="text-red-500 hover:underline">Supprimer</button>
+                </div>
+            `).join('');
+        }
+
+        function addPromoCode() {
+            const code = document.getElementById('new-promo-code').value.trim().toUpperCase();
+            const discount = parseFloat(document.getElementById('new-promo-discount').value);
+            if(code && !isNaN(discount)) {
+                promoCodes.push({ code, discount });
+                saveToStorage(); renderAdminPromos();
+                document.getElementById('new-promo-code').value = '';
+                document.getElementById('new-promo-discount').value = '';
+                alert('Code promo créé !');
+            }
+        }
+
+        function deletePromo(idx) {
+            promoCodes.splice(idx, 1);
+            saveToStorage(); renderAdminPromos();
+        }
+
+        function applyPromoCode() {
+            const codeInput = document.getElementById('sim-promo-input').value.trim().toUpperCase();
+            const feedback = document.getElementById('promo-feedback');
+            const found = promoCodes.find(p => p.code === codeInput);
+            feedback.classList.remove('hidden');
+            if(found) {
+                feedback.className = 'text-xs mt-1 font-medium text-green-600';
+                feedback.innerText = `✓ Code ${found.code} appliqué (-${found.discount}€)`;
+                window.appliedDiscount = found.discount;
+            } else {
+                feedback.className = 'text-xs mt-1 font-medium text-red-600';
+                feedback.innerText = '✗ Code promo invalide';
+                window.appliedDiscount = 0;
+            }
+            goToSimStep(3);
+        }
+
+        function renderAdminPricing() {
+            const list = document.getElementById('admin-pricing-list');
+            if(!list) return;
+            list.innerHTML = pricingProjects.map((p, idx) => `
+                <div class="flex items-center gap-2 bg-gray-50 p-2.5 rounded-xl border text-xs">
+                    <input type="text" id="pricing-name-${idx}" value="${p.name}" class="flex-grow p-2 border rounded-lg bg-white">
+                    <input type="text" id="pricing-price-${idx}" value="${p.price}" class="w-20 p-2 border rounded-lg bg-white">
+                    <button onclick="updatePricingProj(${idx})" class="px-3 py-2 bg-brand-terracotta text-white rounded-lg font-bold">Modifier</button>
+                    <button onclick="deletePricingProj(${idx})" class="px-3 py-2 bg-red-100 text-red-600 rounded-lg font-bold">Supprimer</button>
+                </div>
+            `).join('');
+        }
+
+        function addProjectPricing() {
+            const name = document.getElementById('new-project-name').value.trim();
+            const price = document.getElementById('new-project-price').value.trim();
+            if(name && price) {
+                pricingProjects.push({ id: Date.now(), name, price });
+                saveToStorage(); renderAdminPricing(); renderPricingSelect();
+                document.getElementById('new-project-name').value = '';
+                document.getElementById('new-project-price').value = '';
+                alert('Projet ajouté !');
+            }
+        }
+
+        function updatePricingProj(idx) {
+            pricingProjects[idx].name = document.getElementById(`pricing-name-${idx}`).value;
+            pricingProjects[idx].price = document.getElementById(`pricing-price-${idx}`).value;
+            saveToStorage(); renderPricingSelect();
+            alert('Mis à jour !');
+        }
+
+        function deletePricingProj(idx) {
+            pricingProjects.splice(idx, 1);
+            saveToStorage(); renderAdminPricing(); renderPricingSelect();
+        }
+
+        function renderPricingSelect() {
+            const sel = document.getElementById('sim-type');
+            if(sel) {
+                sel.innerHTML = pricingProjects.map(p => `<option value="${p.price}">${p.name} (à partir de ${p.price}€)</option>`).join('');
+            }
+        }
+
+        function submitDevisRequest() {
+            const typeText = document.getElementById('sim-type').selectedOptions[0].text;
+            const total = document.getElementById('sim-total').innerText;
+            receivedMessages.unshift({ name: 'Demande de Devis Simulation', phone: 'Via Simulateur', email: 'devis@client.fr', msg: `Projet : ${typeText} | Total : ${total}` });
+            saveToStorage(); updateNotifications();
+            alert('Votre demande de devis a bien été transmise à Jenny !');
+            switchTab('contact');
+        }
+
+        function renderAdminMessages() {
+            const list = document.getElementById('admin-messages-list');
+            if(!list) return;
+            if(receivedMessages.length === 0) {
+                list.innerHTML = '<p class="text-xs text-gray-400 italic">Aucun message ou devis demandé.</p>';
+                return;
+            }
+            list.innerHTML = receivedMessages.map((m, idx) => `
+                <div class="p-4 bg-white rounded-xl border text-xs space-y-1">
+                    <div class="flex justify-between font-bold"><span>👤 ${m.name} (${m.phone})</span> <button onclick="deleteMessage(${idx})" class="text-red-500">Supprimer</button></div>
+                    <p class="text-gray-600">${m.msg}</p>
+                </div>
+            `).join('');
+        }
+
+        function deleteMessage(idx) {
+            receivedMessages.splice(idx, 1);
+            saveToStorage(); renderAdminMessages(); updateNotifications();
+        }
+
+        function renderNotesApp() {
+            const list = document.getElementById('notes-pages-list');
+            if(!list) return;
+            list.innerHTML = notePages.map(n => `
+                <div onclick="selectNotePage('${n.id}')" class="p-2.5 rounded-xl cursor-pointer text-xs flex justify-between items-center ${n.id === activeNoteId ? 'bg-brand-rose font-bold text-brand-terracotta' : 'hover:bg-gray-50 text-gray-700'}">
+                    <span>${n.title}</span>
+                    <button onclick="event.stopPropagation(); deleteNotePage('${n.id}')" class="text-red-400 hover:text-red-600"><i class="fa-solid fa-trash"></i></button>
+                </div>
+            `).join('');
+            const active = notePages.find(n => n.id === activeNoteId) || notePages[0];
+            if(active) {
+                document.getElementById('note-page-title').value = active.title;
+                document.getElementById('note-page-content').value = active.content;
+            }
+        }
+
+        function addNewNotePage() {
+            const id = Date.now().toString();
+            notePages.push({ id, title: 'Nouvelle page', content: '' });
+            activeNoteId = id;
+            saveToStorage(); renderNotesApp();
+        }
+
+        function selectNotePage(id) { activeNoteId = id; saveToStorage(); renderNotesApp(); }
+
+        function saveCurrentNote() {
+            const active = notePages.find(n => n.id === activeNoteId);
+            if(active) {
+                active.title = document.getElementById('note-page-title').value;
+                active.content = document.getElementById('note-page-content').value;
+                saveToStorage(); renderNotesApp();
+            }
+        }
+
+        function deleteNotePage(id) {
+            if(notePages.length <= 1) return;
+            notePages = notePages.filter(n => n.id !== id);
+            activeNoteId = notePages[0].id;
+            saveToStorage(); renderNotesApp();
+        }
+
+        function showAddProductModal() { document.getElementById('product-form-card').classList.remove('hidden'); }
+        function hideProductForm() { document.getElementById('product-form-card').classList.add('hidden'); }
+
+        function handleProductFileSelect(event) {
+            const file = event.target.files[0];
+            if(!file) return;
+            compressImage(file, 600, (dataUrl) => {
+                document.getElementById('prod-img-data').value = dataUrl;
+                document.getElementById('img-preview').src = dataUrl;
+                document.getElementById('img-preview-box').classList.remove('hidden');
+            });
+        }
+
+        window.addEventListener('paste', function(e) {
+            const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+            for(let index in items) {
+                const item = items[index];
+                if(item.kind === 'file') {
+                    compressImage(item.getAsFile(), 600, (dataUrl) => {
+                        document.getElementById('prod-img-data').value = dataUrl;
+                        document.getElementById('img-preview').src = dataUrl;
+                        document.getElementById('img-preview-box').classList.remove('hidden');
+                        showAddProductModal();
+                        alert('Image collée avec succès !');
+                    });
+                }
+            }
+        });
+
+        function saveProduct() {
+            const title = document.getElementById('prod-title').value;
+            const price = document.getElementById('prod-price').value;
+            const category = document.getElementById('prod-category').value;
+            const badge = document.getElementById('prod-badge').value;
+            const img = document.getElementById('prod-img-data').value || 'https://images.unsplash.com/photo-1513519245088-0e12902e5a38?auto=format&fit=crop&q=80&w=400';
+            if(!title || !price) { alert('Remplissez le nom et le prix.'); return; }
+            productsData.push({ id: Date.now(), title, category, price, badge, img });
+            saveToStorage(); renderAll(); hideProductForm();
+            alert('Création enregistrée !');
+        }
+
+        function deleteProduct(idx) {
+            if(confirm('Supprimer ?')) {
+                const removed = productsData.splice(idx, 1)[0];
+                trashBin.unshift({ type: 'Galerie', desc: removed.title, data: removed, time: new Date().toLocaleTimeString() });
+                saveToStorage(); renderAll();
+            }
+        }
+
+        function updateNotifications() {
+            const unreadMsgs = receivedMessages.length;
+            const unreadSuggs = suggestionsData.filter(s => !s.reply).length;
+            const badgeHeader = document.getElementById('header-notification-badge');
+            const badgeMsgs = document.getElementById('badge-msgs');
+            const badgeSuggs = document.getElementById('badge-suggs');
+
+            if(unreadMsgs > 0 || unreadSuggs > 0) badgeHeader?.classList.remove('hidden');
+            else badgeHeader?.classList.add('hidden');
+
+            if(badgeMsgs) {
+                if(unreadMsgs > 0) { badgeMsgs.innerText = unreadMsgs; badgeMsgs.classList.remove('hidden'); }
+                else badgeMsgs.classList.add('hidden');
+            }
+            if(badgeSuggs) {
+                if(unreadSuggs > 0) { badgeSuggs.innerText = unreadSuggs; badgeSuggs.classList.remove('hidden'); }
+                else badgeSuggs.classList.add('hidden');
+            }
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const pass = document.getElementById('admin-password-input').value;
+            const timeStr = new Date().toLocaleTimeString() + ' (' + new Date().toLocaleDateString() + ')';
+            if(pass === adminPassword) {
+                loginHistory.unshift({ status: 'Réussi', time: timeStr });
+                saveToStorage();
+                document.getElementById('admin-login').classList.add('hidden');
+                document.getElementById('admin-panel').classList.remove('hidden');
+                switchAdminSection('dashboard');
+                renderAll();
+            } else {
+                loginHistory.unshift({ status: 'Échoué (Mauvais mot de passe)', time: timeStr });
+                saveToStorage();
+                alert('Mot de passe incorrect.');
+            }
+        }
+
+        function renderLoginHistory() {
+            const box = document.getElementById('admin-login-history');
+            if(!box) return;
+            if(loginHistory.length === 0) { box.innerHTML = '<p class="text-gray-400">Aucun historique.</p>'; return; }
+            box.innerHTML = loginHistory.map(h => `<div class="p-2.5 bg-gray-50 rounded-xl border flex justify-between"><span class="${h.status === 'Réussi' ? 'text-green-600 font-bold' : 'text-red-600 font-bold'}">${h.status}</span><span class="text-gray-400 text-[10px]">${h.time}</span></div>`).join('');
+        }
+
+        function logoutAdmin() { location.reload(); }
+
+        function goToSimStep(step) {
+            document.getElementById('sim-step-1').classList.add('hidden');
+            document.getElementById('sim-step-2').classList.add('hidden');
+            document.getElementById('sim-step-3').classList.add('hidden');
+            document.getElementById(`sim-step-${step}`).classList.remove('hidden');
+            if(step === 3) {
+                let base = parseFloat(document.getElementById('sim-type').value || 25);
+                let ship = parseFloat(document.getElementById('sim-shipping').value || 0);
+                let disc = window.appliedDiscount || 0;
+                let finalTotal = Math.max(0, base + ship - disc);
+                document.getElementById('sim-total').innerText = finalTotal.toFixed(2).replace('.', ',') + ' €';
+            }
+        }
+
+        let currentFilterCategory = 'all';
+        function filterGallery(cat) { currentFilterCategory = cat; renderAll(); }
+        function filterVitrine(cat) { currentVitrineCategory = cat; renderVitrine(); }
+
+        let currentVitrineCategory = 'all';
+        function renderVitrine() {
+            const grid = document.getElementById('vitrine-grid');
+            const filters = document.getElementById('vitrine-filters');
+            if(!grid) return;
+            const cats = ['Noël', 'Bijoux', 'Décoration'];
+            filters.innerHTML = `<button onclick="filterVitrine('all')" class="px-4 py-2 ${currentVitrineCategory === 'all' ? 'bg-brand-terracotta text-white' : 'bg-gray-100 text-gray-700'} text-xs font-bold rounded-xl shadow-sm">Toutes</button>` +
+            cats.map(c => `<button onclick="filterVitrine('${c}')" class="px-4 py-2 ${currentVitrineCategory === c ? 'bg-brand-terracotta text-white' : 'bg-gray-100 text-gray-700'} text-xs font-bold rounded-xl shadow-sm">${c}</button>`).join('');
+
+            const filtered = currentVitrineCategory === 'all' ? productsData : productsData.filter(p => p.category === currentVitrineCategory);
+            grid.innerHTML = filtered.map(p => `
+                <div class="dynamic-card overflow-hidden shadow-sm transition-all relative group">
+                    ${p.badge ? `<span class="absolute top-3 left-3 bg-brand-terracotta text-white text-[10px] font-bold px-2.5 py-1 rounded-full z-10">${p.badge}</span>` : ''}
+                    <div class="h-56 bg-gray-100 overflow-hidden"><img src="${p.img}" alt="${p.title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform"></div>
+                    <div class="p-5 flex justify-between items-center">
+                        <div>
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-brand-terracotta">${p.category}</span>
+                            <h3 class="font-serif font-bold text-lg">${p.title}</h3>
+                            <span class="text-brand-terracotta font-bold text-base">${p.price}</span>
+                        </div>
+                        <button onclick="switchTab('contact')" class="px-4 py-2 bg-brand-rose text-brand-terracotta font-semibold text-xs rounded-xl hover:bg-brand-terracotta hover:text-white">Commander</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderNav() {
+            const navBar = document.getElementById('main-nav-bar');
+            const mobileNav = document.getElementById('mobile-nav-links');
+            const html = navTabs.map(tab => `<button onclick="switchTab('${tab.id}')" class="nav-link-item hover:opacity-75 transition-colors py-2 font-medium">${tab.label}</button>`).join('');
+            if(navBar) navBar.innerHTML = html;
+            if(mobileNav) mobileNav.innerHTML = html;
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            const target = document.getElementById(`tab-${tabId}`);
+            if(target) target.classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            if(tabId === 'suggestion') renderSuggestions();
+            if(tabId === 'vitrine') renderVitrine();
+            if(tabId === 'chat') syncLiveChat();
+            document.getElementById('mobile-menu').classList.add('hidden');
+        }
+
+        function renderAll() {
+            renderNav();
+            document.getElementById('display-hero-title').innerHTML = heroTitleText;
+            document.getElementById('display-hero-subtitle').innerText = heroSubtitle;
+            
+            const heroImgWrap = document.getElementById('hero-image-wrapper');
+            if(heroImgUrl === '') heroImgWrap.style.display = 'none';
+            else { heroImgWrap.style.display = 'block'; document.getElementById('display-hero-img').src = heroImgUrl; }
+
+            const aboutImgWrap = document.getElementById('about-image-wrapper');
+            if(aboutImgUrl === '') aboutImgWrap.style.display = 'none';
+            else { aboutImgWrap.style.display = 'block'; document.getElementById('display-about-img').src = aboutImgUrl; }
+
+            const filterBox = document.getElementById('category-filters');
+            if(filterBox) {
+                const cats = ['Noël', 'Bijoux', 'Décoration'];
+                filterBox.innerHTML = `<button onclick="filterGallery('all')" class="px-4 py-2 ${currentFilterCategory === 'all' ? 'bg-brand-terracotta text-white' : 'bg-gray-100 text-gray-700'} text-xs font-bold rounded-xl shadow-sm">Toutes</button>` +
+                cats.map(c => `<button onclick="filterGallery('${c}')" class="px-4 py-2 ${currentFilterCategory === c ? 'bg-brand-terracotta text-white' : 'bg-gray-100 text-gray-700'} text-xs font-bold rounded-xl shadow-sm">${c}</button>`).join('');
+            }
+
+            const galleryHome = document.getElementById('home-gallery-grid');
+            if(galleryHome) {
+                const filtered = currentFilterCategory === 'all' ? productsData : productsData.filter(p => p.category === currentFilterCategory);
+                galleryHome.innerHTML = filtered.map(p => `
+                    <div class="dynamic-card overflow-hidden shadow-sm transition-all relative group">
+                        ${p.badge ? `<span class="absolute top-3 left-3 bg-brand-terracotta text-white text-[10px] font-bold px-2.5 py-1 rounded-full z-10">${p.badge}</span>` : ''}
+                        <div class="h-56 bg-gray-100 overflow-hidden"><img src="${p.img}" alt="${p.title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform"></div>
+                        <div class="p-5 flex justify-between items-center">
+                            <div>
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-brand-terracotta">${p.category}</span>
+                                <h3 class="font-serif font-bold text-lg">${p.title}</h3>
+                                <span class="text-brand-terracotta font-bold text-base">${p.price}</span>
+                            </div>
+                            <button onclick="switchTab('contact')" class="px-4 py-2 bg-brand-rose text-brand-terracotta font-semibold text-xs rounded-xl hover:bg-brand-terracotta hover:text-white">Commander</button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            const containerFull = document.getElementById('services-grid-full');
+            const containerHome = document.getElementById('services-grid-home');
+            const servicesHtml = servicesData.map(s => `
+                <div class="p-6 dynamic-card shadow-sm text-left">
+                    <div class="w-12 h-12 bg-brand-rose rounded-xl flex items-center justify-center text-brand-terracotta text-xl mb-4 font-bold">✨</div>
+                    <h3 class="font-serif text-xl font-bold mb-2">${s.title}</h3>
+                    <p class="opacity-85 text-sm">${s.desc}</p>
+                </div>
+            `).join('');
+            if(containerHome) containerHome.innerHTML = servicesHtml;
+            if(containerFull) containerFull.innerHTML = servicesHtml;
+
+            if(heroImgUrl) document.getElementById('admin-hero-preview').src = heroImgUrl;
+            if(aboutImgUrl) document.getElementById('admin-about-preview').src = aboutImgUrl;
+            document.getElementById('admin-txt-herotitle').value = heroTitleText.replace(/<\/?[^>]+(>|$)/g, "");
+            document.getElementById('admin-txt-herosub').value = heroSubtitle;
+            document.getElementById('admin-theme-select').value = currentTheme;
+            document.getElementById('admin-anim-select').value = activeAnimation;
+            document.getElementById('admin-border-select').value = activeBorderStyle;
+            document.getElementById('dash-visits-count').innerText = siteVisits;
+            document.getElementById('dash-msg-count').innerText = receivedMessages.length;
+            document.getElementById('dash-sugg-count').innerText = suggestionsData.length;
+
+            const adminProdList = document.getElementById('admin-products-list');
+            if(adminProdList) {
+                adminProdList.innerHTML = productsData.map((p, idx) => `
+                    <div class="p-3 bg-white rounded-xl border flex items-center justify-between gap-2">
+                        <div class="flex items-center gap-2">
+                            <img src="${p.img}" class="w-10 h-10 rounded-lg object-cover border">
+                            <div><span class="text-[9px] font-bold text-brand-terracotta">${p.category}</span><h4 class="font-bold text-xs">${p.title} (${p.price})</h4></div>
+                        </div>
+                        <button onclick="deleteProduct(${idx})" class="p-1.5 text-red-500 hover:bg-red-50 rounded-lg text-xs"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+                `).join('');
+            }
+
+            renderPricingSelect();
+            updateNotifications();
+        }
+
+        function submitForm(e) {
+            e.preventDefault();
+            receivedMessages.unshift({ name: document.getElementById('contact-name').value, phone: document.getElementById('contact-phone').value, email: document.getElementById('contact-email').value, msg: document.getElementById('contact-msg').value });
+            saveToStorage(); updateNotifications();
+            alert('Message envoyé à Jenny !'); e.target.reset();
+        }
+
+        setSiteTheme(currentTheme);
+        setSiteBorderStyle(activeBorderStyle);
+        initAnimations();
+        renderAll();
+        lastChatStateHash = localStorage.getItem('jenny_conversations') || '{}';
+        if(currentClientName && clientConversations[activeChatClientId]) {
+            document.getElementById('chat-id-screen').classList.add('hidden');
+            document.getElementById('chat-conversation-screen').classList.remove('hidden');
+            document.getElementById('chat-client-badge').innerText = 'Connecté : ' + currentClientName;
+            renderChatMessages();
+        }
+    </script>
+</body>
+</html>
